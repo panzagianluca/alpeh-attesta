@@ -1,3 +1,6 @@
+"use client";
+
+import React, { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -14,6 +17,9 @@ import { AnimatedCircularProgressBar } from "@/components/magicui/animated-circu
 import { GridPattern } from "@/components/magicui/grid-pattern";
 import { GridBeams } from "@/components/magicui/grid-beams";
 import { AuroraText } from "@/components/magicui/aurora-text";
+import { AnimatedBeam } from "@/components/magicui/animated-beam";
+import { ScratchToReveal } from "@/components/magicui/scratch-to-reveal";
+import { MagicCard } from "@/components/magicui/magic-card";
 import { Badge } from "@/components/ui/badge";
 import { 
   Shield, 
@@ -34,6 +40,78 @@ import {
   Activity
 } from "lucide-react";
 
+function AnimatedBeamDemo() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const publisherRef = useRef<HTMLDivElement>(null);
+  const attestaRef = useRef<HTMLDivElement>(null);
+  const validatorsRef = useRef<HTMLDivElement>(null);
+
+  return (
+    <div 
+      className="relative flex h-80 w-full items-center justify-center overflow-hidden bg-[#0A0A0A]" 
+      ref={containerRef}
+    >
+      {/* Publisher - Left */}
+      <div className="flex flex-col items-center">
+        <div className="text-lg font-semibold text-[#EDEDED] mb-2">Publisher</div>
+        <div 
+          className="flex size-16 items-center justify-center rounded-full border-2 border-[#38BDF8] bg-[#0A0A0A] mb-2" 
+          ref={publisherRef}
+        >
+          <Building className="h-6 w-6 text-[#38BDF8]" />
+        </div>
+        <div className="text-xs text-[#EDEDED]/60 text-center">Submits CID<br/>+ Stakes</div>
+      </div>
+      
+      {/* Attesta Core - Center */}
+      <div className="flex flex-col items-center mx-16">
+        <div className="text-lg font-semibold text-[#38BDF8] mb-2">Attesta</div>
+        <div 
+          className="flex size-20 items-center justify-center rounded-full border-2 border-[#38BDF8] bg-[#38BDF8]/10 mb-2" 
+          ref={attestaRef}
+        >
+          <img src="/FaviconWhite.svg" alt="Attesta" className="h-8 w-8" />
+        </div>
+        <div className="text-xs text-[#EDEDED]/60 text-center">Monitors &<br/>Coordinates</div>
+      </div>
+      
+      {/* Validators - Right */}
+      <div className="flex flex-col items-center">
+        <div className="text-lg font-semibold text-[#EDEDED] mb-2">Validators</div>
+        <div 
+          className="flex size-16 items-center justify-center rounded-full border-2 border-[#38BDF8] bg-[#0A0A0A] mb-2" 
+          ref={validatorsRef}
+        >
+          <Users className="h-6 w-6 text-[#38BDF8]" />
+        </div>
+        <div className="text-xs text-[#EDEDED]/60 text-center">Stake &<br/>Verify</div>
+      </div>
+
+      {/* Simple Bidirectional Beam */}
+      <AnimatedBeam
+        containerRef={containerRef}
+        fromRef={publisherRef}
+        toRef={attestaRef}
+        duration={2}
+        curvature={0}
+        gradientStartColor="#38BDF8"
+        gradientStopColor="#38BDF8"
+      />
+      
+      <AnimatedBeam
+        containerRef={containerRef}
+        fromRef={attestaRef}
+        toRef={validatorsRef}
+        duration={2}
+        delay={1}
+        curvature={0}
+        gradientStartColor="#38BDF8"
+        gradientStopColor="#38BDF8"
+      />
+    </div>
+  );
+}
+
 export function AttestLanding() {
   const credibilityPartners = [
     { name: "IPFS", logo: "/logos/ipfs.png" },
@@ -53,7 +131,7 @@ export function AttestLanding() {
   const bentoItems = [
     {
       name: "Economic Guarantees",
-      description: "Validators stake tokens to guarantee availability",
+      description: "Validators stake tokens and face automatic slashing penalties when your content goes offline, creating real economic incentives for 99%+ uptime",
       className: "col-span-2",
       Icon: Shield,
       href: "#",
@@ -61,7 +139,7 @@ export function AttestLanding() {
     },
     {
       name: "Real-time Monitoring",
-      description: "Continuous availability checks every 30 seconds",
+      description: "Multi-gateway probes every 60 seconds across 5 IPFS gateways with <60s breach detection and cryptographically signed evidence packs",
       className: "col-span-1",
       Icon: Activity,
       href: "#",
@@ -69,7 +147,7 @@ export function AttestLanding() {
     },
     {
       name: "Global Validator Network",
-      description: "Distributed validators across 6 continents",
+      description: "Decentralized validator network with K-of-N availability thresholds, ensuring no single point of failure for your critical data",
       className: "col-span-1",
       Icon: Globe,
       href: "#",
@@ -77,7 +155,7 @@ export function AttestLanding() {
     },
     {
       name: "Open Source",
-      description: "MIT licensed, fully auditable codebase",
+      description: "Open source with smart contracts deployed on Lisk, evidence packs stored on IPFS, and full transaction transparency on-chain",
       className: "col-span-2",
       Icon: Code,
       href: "https://github.com/panzagianluca/alpeh-attesta",
@@ -98,7 +176,7 @@ export function AttestLanding() {
     },
     {
       icon: <Database className="h-6 w-6" />,
-      title: "NFT Platforms",
+      title: "NFT\nPlatforms",
       description: "Protect digital collectibles with availability guarantees"
     },
     {
@@ -185,8 +263,30 @@ export function AttestLanding() {
       {/* The Problem */}
       <section className="py-20 px-6">
         <div className="max-w-[896px] mx-auto text-center">
-          <AlertTriangle className="h-12 w-12 text-orange-500 mx-auto mb-6" />
-          <h2 className="text-4xl font-bold mb-6">The Problem</h2>
+          <h2 className="text-4xl font-bold mb-8">The Problem</h2>
+          
+          {/* Scratch to Reveal */}
+          <div className="flex justify-center mb-8">
+            <ScratchToReveal
+              width={400}
+              height={200}
+              minScratchPercentage={30}
+              className="border border-[#EDEDED]/20 rounded-lg overflow-hidden"
+              gradientColors={["#38BDF8", "#85cfefff", "#FFFFFF"]}
+            >
+              <div className="flex items-center justify-center h-full bg-gradient-to-br from-[#38BDF8]/10 to-[#0A0A0A] rounded-lg">
+                <div className="text-center p-6">
+                  <p className="text-xl font-semibold text-[#EDEDED] mb-2">
+                    Is your data still there?
+                  </p>
+                  <p className="text-sm text-[#EDEDED]/70">
+                    You don't know...
+                  </p>
+                </div>
+              </div>
+            </ScratchToReveal>
+          </div>
+          
           <p className="text-xl text-[#EDEDED]/70 mb-8 leading-relaxed">
             IPFS content can become unavailable when nodes go offline. There's no economic incentive 
             for nodes to maintain your data, and no guarantee it will be there when you need it.
@@ -241,6 +341,7 @@ export function AttestLanding() {
                 Icon={item.Icon}
                 href={item.href}
                 cta={item.cta}
+                enableHoverEffects={item.name === "Open Source"}
               />
             ))}
           </BentoGrid>
@@ -250,41 +351,58 @@ export function AttestLanding() {
       {/* How It Works */}
       <section id="how-it-works" className="py-20 px-6">
         <div className="max-w-[896px] mx-auto">
-          <div className="text-center mb-16">
+          {/* Title & Subtitle */}
+          <div className="text-center mb-8">
             <h2 className="text-4xl font-bold mb-6">How It Works</h2>
             <p className="text-xl text-[#EDEDED]/70 max-w-3xl mx-auto">
-              A simple three-step process to guarantee your IPFS content availability
+              Validators stake tokens to guarantee IPFS content availability through economic incentives
             </p>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-8">
+          {/* Animated Beam Visualization */}
+          <div className="relative mb-16">
+            <AnimatedBeamDemo />
+          </div>
+          
+          {/* Process Steps */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center">
               <div className="w-16 h-16 bg-[#38BDF8] rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl font-bold text-[#0A0A0A]">1</span>
+                <Building className="h-8 w-8 text-[#0A0A0A]" />
               </div>
-              <h3 className="text-xl font-semibold mb-4">Submit Your CID</h3>
+              <h3 className="text-xl font-semibold mb-4">1. Submit CID</h3>
               <p className="text-[#EDEDED]/70">
-                Provide your IPFS Content Identifier and set your availability requirements
+                Publishers register their IPFS content with availability requirements and stake
               </p>
             </div>
             
             <div className="text-center">
               <div className="w-16 h-16 bg-[#38BDF8] rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl font-bold text-[#0A0A0A]">2</span>
+                <Shield className="h-8 w-8 text-[#0A0A0A]" />
               </div>
-              <h3 className="text-xl font-semibold mb-4">Validators Stake</h3>
+              <h3 className="text-xl font-semibold mb-4">2. Attesta Monitors</h3>
               <p className="text-[#EDEDED]/70">
-                Validators stake tokens and commit to maintaining your content availability
+                Our network continuously probes IPFS gateways to verify content availability
               </p>
             </div>
             
             <div className="text-center">
               <div className="w-16 h-16 bg-[#38BDF8] rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl font-bold text-[#0A0A0A]">3</span>
+                <Users className="h-8 w-8 text-[#0A0A0A]" />
               </div>
-              <h3 className="text-xl font-semibold mb-4">Guaranteed Access</h3>
+              <h3 className="text-xl font-semibold mb-4">3. Validators Stake</h3>
               <p className="text-[#EDEDED]/70">
-                Your content is monitored 24/7 with economic guarantees for availability
+                Validators bond tokens to content, earning rewards for successful monitoring
+              </p>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-16 h-16 bg-[#38BDF8] rounded-full flex items-center justify-center mx-auto mb-6">
+                <CheckCircle className="h-8 w-8 text-[#0A0A0A]" />
+              </div>
+              <h3 className="text-xl font-semibold mb-4">4. Guarantee</h3>
+              <p className="text-[#EDEDED]/70">
+                If content goes offline, validators get slashed and publishers receive compensation
               </p>
             </div>
           </div>
@@ -303,102 +421,23 @@ export function AttestLanding() {
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {useCases.map((useCase, idx) => (
-              <Card key={idx} className="bg-[#0A0A0A] border-[#EDEDED]/10 hover:border-[#38BDF8]/50 transition-colors">
-                <CardHeader>
-                  <div className="w-12 h-12 bg-[#38BDF8]/10 rounded-lg flex items-center justify-center mb-4">
-                    <div className="text-[#38BDF8]">{useCase.icon}</div>
-                  </div>
-                  <CardTitle className="text-lg">{useCase.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-[#EDEDED]/60">
-                    {useCase.description}
-                  </CardDescription>
-                </CardContent>
-              </Card>
+              <MagicCard 
+                key={idx} 
+                className="bg-[#0A0A0A] border-[#EDEDED]/10 p-6 rounded-lg"
+                gradientFrom="#38BDF8"
+                gradientTo="#9333EA"
+                gradientColor="#38BDF8"
+                gradientOpacity={0.4}
+              >
+                <div className="w-12 h-12 bg-[#38BDF8]/10 rounded-lg flex items-center justify-center mb-4">
+                  <div className="text-[#38BDF8]">{useCase.icon}</div>
+                </div>
+                <h3 className="text-lg font-semibold mb-2 whitespace-pre-line">{useCase.title}</h3>
+                <p className="text-[#EDEDED]/60">
+                  {useCase.description}
+                </p>
+              </MagicCard>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Integrations */}
-      <section className="py-20 px-6 bg-[#0A0A0A]/50">
-        <div className="max-w-[896px] mx-auto">
-          <div className="text-center mb-12">
-            <Cpu className="h-12 w-12 text-[#38BDF8] mx-auto mb-6" />
-            <h2 className="text-4xl font-bold mb-6">Developer Integrations</h2>
-            <p className="text-xl text-[#EDEDED]/70 leading-relaxed">
-              Simple APIs and SDKs to integrate IPFS monitoring into your applications.
-            </p>
-          </div>
-          
-          <div className="grid lg:grid-cols-2 gap-6 max-w-4xl mx-auto">
-            <div className="space-y-6">
-              <Card className="bg-[#0A0A0A] border-[#EDEDED]/10">
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Cpu className="h-5 w-5" />
-                    <span>API Integration</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-[#EDEDED]/60 mb-4">
-                    Simple REST API and SDKs for popular languages
-                  </p>
-                  <div className="bg-[#0A0A0A] border border-[#EDEDED]/10 rounded p-3 text-sm font-mono">
-                    {`curl -X POST /api/v1/monitor \\`}<br />
-                    {`-d '{"cid": "QmHash...", "duration": "30d"}'`}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-            
-            <div className="space-y-6">
-              <Card className="bg-[#0A0A0A] border-[#EDEDED]/10">
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Zap className="h-5 w-5" />
-                    <span>Real-time Monitoring</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-[#EDEDED]/60">
-                    WebSocket connections for live status updates and alerts
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Open Source & Docs */}
-      <section id="docs" className="py-20 px-6">
-        <div className="max-w-[896px] mx-auto text-center">
-          <Github className="h-12 w-12 text-[#38BDF8] mx-auto mb-6" />
-          <h2 className="text-4xl font-bold mb-6">Open Source & Community</h2>
-          <p className="text-xl text-[#EDEDED]/70 mb-8 leading-relaxed">
-            Attesta is built in the open. Contribute to the codebase, review smart contracts, 
-            or join our community of validators and developers.
-          </p>
-          
-          <div className="flex justify-center mb-8">
-            <Card className="bg-[#0A0A0A] border-[#EDEDED]/10 max-w-md">
-              <CardContent className="p-6 text-center">
-                <Github className="h-8 w-8 text-[#38BDF8] mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Source Code</h3>
-                <p className="text-[#EDEDED]/60 mb-4">MIT licensed, fully auditable</p>
-                <a 
-                  href="https://github.com/panzagianluca/alpeh-attesta"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Button variant="outline" className="border-[#38BDF8] text-[#38BDF8]">
-                    View on GitHub
-                  </Button>
-                </a>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </section>
