@@ -47,8 +47,32 @@ export function DashboardPage() {
   const [cids, setCids] = useState<CIDDashboardItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [probing, setProbing] = useState(false)
   
   const { fetchCIDs } = useRegisteredCIDs()
+
+  // Manual probe trigger for demo purposes
+  const triggerManualProbe = async () => {
+    try {
+      setProbing(true)
+      const response = await fetch('/api/probe/manual', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+      const result = await response.json()
+      
+      if (result.success) {
+        // Refresh CIDs after probe
+        setTimeout(() => {
+          loadCIDs()
+        }, 2000)
+      }
+    } catch (err) {
+      console.error('Manual probe failed:', err)
+    } finally {
+      setProbing(false)
+    }
+  }
 
   // Load CIDs from contract
   const loadCIDs = async () => {
@@ -154,6 +178,16 @@ export function DashboardPage() {
             </div>
             
             <div className="flex items-center space-x-4">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={triggerManualProbe}
+                disabled={probing}
+                className="border-[#38BDF8]/20 text-[#38BDF8]/70 hover:bg-[#38BDF8]/10"
+              >
+                <RefreshCw className={`w-4 h-4 mr-2 ${probing ? 'animate-spin' : ''}`} />
+                {probing ? 'Probing...' : 'Manual Probe'}
+              </Button>
               <Button 
                 variant="outline" 
                 size="sm" 
