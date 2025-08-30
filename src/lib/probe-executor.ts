@@ -43,8 +43,9 @@ export class ProbeExecutor {
     maxConcurrency?: number;
   } = {}) {
     this.gateways = options.gateways || this.getDefaultGateways();
-    this.timeout = options.timeout || 5000; // 5 seconds default
-    this.maxConcurrency = options.maxConcurrency || 5;
+    // Production optimization: shorter timeouts for Vercel
+    this.timeout = options.timeout || (process.env.NODE_ENV === 'production' ? 3000 : 5000);
+    this.maxConcurrency = options.maxConcurrency || (process.env.NODE_ENV === 'production' ? 3 : 5);
   }
 
   private getDefaultGateways(): string[] {

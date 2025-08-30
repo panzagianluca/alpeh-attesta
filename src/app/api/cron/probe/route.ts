@@ -8,13 +8,21 @@
  * 4. Upload to IPFS
  * 5. Anchor on-chain via reportPack
  * 
- * Designed to complete within 60-second budget.
+ * Optimized for Vercel production:
+ * - 25s execution budget (Vercel 30s limit with buffer)
+ * - Node.js runtime for better performance
+ * - Concurrent execution prevention
  */
+
+// Vercel runtime configuration
+export const runtime = 'nodejs';
+export const maxDuration = 25; // 25 seconds max (Vercel hobby limit is 30s)
 
 import { NextResponse } from 'next/server';
 import { createAndUploadEvidencePack, type BuilderInputs } from '@/lib/evidence';
 import { getCIDManager, type ActiveCID } from '@/lib/cid-manager';
 import { createProbeExecutor, type ProbeAnalysis } from '@/lib/probe-executor';
+import { updateHealthMetrics } from '@/app/api/health/route';
 
 // Prevent concurrent executions
 let isRunning = false;
@@ -93,18 +101,22 @@ export async function POST() {
   };
 
   try {
+    const executionBudget = process.env.NODE_ENV === 'production' ? 22000 : 25000; // 22s for prod, 25s for dev
+    
     console.log('🚀 CID Sentinel Cron Cycle Started', {
       timestamp: new Date(startTime).toISOString(),
-      budget: '60s'
+      environment: process.env.NODE_ENV || 'development',
+      budget: `${executionBudget/1000}s`,
+      vercelRegion: process.env.VERCEL_REGION || 'local'
     });
 
     // Step 1: Fetch CIDs to monitor
     const activeCIDs = await fetchActiveCIDs();
     console.log(`📋 Found ${activeCIDs.length} active CIDs to monitor`);
 
-    // Step 2: Process CIDs with controlled concurrency
-    const maxConcurrent = 3;
-    const results = await processCIDsWithConcurrency(activeCIDs, maxConcurrent);
+    // Step 2: Process CIDs with controlled concurrency and timeout
+    const maxConcurrent = process.env.NODE_ENV === 'production' ? 2 : 3; // Lower concurrency in prod
+    const results = await processCIDsWithConcurrency(activeCIDs, maxConcurrent, executionBudget);
 
     // Step 3: Update statistics
     stats.processed = results.length;
@@ -113,15 +125,33 @@ export async function POST() {
     stats.cids = results;
     stats.duration = Date.now() - startTime;
 
+    // Step 4: Production monitoring and alerts
+    const budgetStatus = stats.duration < executionBudget ? 'ON_BUDGET' : 'OVER_BUDGET';
+    const healthStatus = stats.errors / Math.max(stats.processed, 1) < 0.5 ? 'HEALTHY' : 'DEGRADED';
+    
     console.log('✅ CID Sentinel Cron Cycle Completed', {
       duration: `${stats.duration}ms`,
       processed: stats.processed,
       anchored: stats.anchored,
       errors: stats.errors,
-      budget: stats.duration < 60000 ? 'ON_BUDGET' : 'OVER_BUDGET'
+      budget: budgetStatus,
+      health: healthStatus,
+      successRate: `${((stats.anchored / Math.max(stats.processed, 1)) * 100).toFixed(1)}%`
     });
 
+    // Production alerting (could integrate with external monitoring)
+    if (budgetStatus === 'OVER_BUDGET' || healthStatus === 'DEGRADED') {
+      console.warn('⚠️  Production Alert:', {
+        budgetExceeded: budgetStatus === 'OVER_BUDGET',
+        healthDegraded: healthStatus === 'DEGRADED',
+        timestamp: new Date().toISOString()
+      });
+    }
+
     lastCycleStats = stats;
+    
+    // Report to health monitoring
+    updateHealthMetrics(stats.duration, stats.errors === 0);
 
     return NextResponse.json({
       success: true,
@@ -130,7 +160,7 @@ export async function POST() {
         processed: stats.processed,
         anchored: stats.anchored,
         errors: stats.errors,
-        budget: stats.duration < 60000 ? 'ON_BUDGET' : 'OVER_BUDGET'
+        budget: budgetStatus
       },
       results: stats.cids
     });
@@ -139,16 +169,21 @@ export async function POST() {
     stats.duration = Date.now() - startTime;
     stats.errors = 1;
     
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    
     console.error('❌ CID Sentinel Cron Cycle Failed', {
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: errorMessage,
       duration: stats.duration
     });
 
     lastCycleStats = stats;
+    
+    // Report error to health monitoring
+    updateHealthMetrics(stats.duration, false, errorMessage);
 
     return NextResponse.json({
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: errorMessage,
       duration: stats.duration
     }, { status: 500 });
 
@@ -186,18 +221,40 @@ async function fetchActiveCIDs(): Promise<string[]> {
 }
 
 /**
- * Process CIDs with controlled concurrency to stay within 60s budget
+ * Process CIDs with controlled concurrency and timeout management for Vercel
  */
 async function processCIDsWithConcurrency(
   cids: string[], 
-  maxConcurrent: number
+  maxConcurrent: number,
+  timeoutMs: number = 20000 // 20s timeout for Vercel production
 ): Promise<CycleStats['cids']> {
   const results: CycleStats['cids'] = [];
+  const startTime = Date.now();
   
-  // Process CIDs in batches
-  for (let i = 0; i < cids.length; i += maxConcurrent) {
-    const batch = cids.slice(i, i + maxConcurrent);
-    const batchPromises = batch.map(cid => processSingleCID(cid));
+  // Production optimization: limit CIDs per execution
+  const maxCIDsPerExecution = process.env.NODE_ENV === 'production' ? 3 : cids.length;
+  const limitedCIDs = cids.slice(0, maxCIDsPerExecution);
+  
+  console.log(`🚀 Processing ${limitedCIDs.length} CIDs with ${maxConcurrent} max concurrent (${timeoutMs}ms timeout)`);
+  
+  // Process CIDs in batches with timeout protection
+  for (let i = 0; i < limitedCIDs.length; i += maxConcurrent) {
+    // Check if we're running out of time
+    const elapsed = Date.now() - startTime;
+    if (elapsed > timeoutMs * 0.8) { // Use 80% of timeout as safety margin
+      console.log(`⏰ Timeout protection: stopping processing after ${elapsed}ms`);
+      break;
+    }
+    
+    const batch = limitedCIDs.slice(i, i + maxConcurrent);
+    const batchPromises = batch.map(cid => 
+      Promise.race([
+        processSingleCID(cid),
+        new Promise<CycleStats['cids'][0]>((_, reject) => 
+          setTimeout(() => reject(new Error('CID processing timeout')), 8000) // 8s per CID max
+        )
+      ])
+    );
     
     const batchResults = await Promise.allSettled(batchPromises);
     
@@ -205,6 +262,7 @@ async function processCIDsWithConcurrency(
       if (result.status === 'fulfilled') {
         results.push(result.value);
       } else {
+        console.error(`❌ Batch processing failed for ${batch[index]}:`, result.reason);
         results.push({
           cid: batch[index],
           status: 'ERROR',
@@ -213,6 +271,10 @@ async function processCIDsWithConcurrency(
         });
       }
     });
+    
+    // Log batch progress
+    const batchElapsed = Date.now() - startTime;
+    console.log(`✅ Batch ${Math.floor(i/maxConcurrent) + 1} completed in ${batchElapsed}ms`);
   }
   
   return results;

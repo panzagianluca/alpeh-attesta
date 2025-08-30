@@ -1,5 +1,16 @@
 {
   "crons": [
-    { "path": "/api/cron/probe", "schedule": "*/1 * * * *" }
-  ]
+    {
+      "path": "/api/cron/probe",
+      "schedule": "*/1 * * * *"
+    }
+  ],
+  "functions": {
+    "src/app/api/cron/probe/route.ts": {
+      "maxDuration": 25
+    }
+  },
+  "env": {
+    "NODE_ENV": "production"
+  }
 }
