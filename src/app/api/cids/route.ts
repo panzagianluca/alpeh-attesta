@@ -83,19 +83,13 @@ export async function GET(request: NextRequest) {
 
     const cids = []
     
-    // Real demo CIDs that map to registered events
-    const realDemoCIDs = [
-      'QmQzpoN7xYiV5xamW4JvB483feHQMkr3DThssFfryqFLHT', // Demo info
-      'QmazK8RQkKd9hXjykqif13WAa5Aur9HpRxhG8e1zgZTkz8', // Demo data CSV
-      'QmRJr7VizMbJbRhPA8eorZbnNynPn2WcNCEsTbHNm7JvNG', // Demo visual
-      'QmZ9bW93w48Kp4kzGfhrZq7MmaLEukXDFotZTJrnoqhCZ1', // Demo manifest
-      'QmU9zAFd3qDhAQ5eeSXuKkFADfdDDxkp7VVynAWTqaGPiA'  // Victim CID (breached)
-    ];
-    
     for (let i = 0; i < logs.length; i++) {
       const log = logs[i];
       try {
         const block = await publicClient.getBlock({ blockNumber: log.blockNumber })
+        
+        // Get the transaction to extract the real CID from input data
+        const tx = await publicClient.getTransaction({ hash: log.transactionHash })
         
         // Decode the log data
         const decoded = decodeEventLog({
@@ -104,9 +98,33 @@ export async function GET(request: NextRequest) {
           topics: log.topics
         })
         
-        // Map to real CID instead of placeholder
         const { cid: cidDigest, publisher, slo, slashing } = decoded.args as any
-        const realCID = realDemoCIDs[i] || `QmPlaceholder${cidDigest.slice(2, 10)}`
+        
+        // Extract actual CID from transaction input data
+        let realCID = `Unknown_${cidDigest.slice(2, 10)}`
+        
+        try {
+          // Try to decode the transaction input to get the original CID string
+          if (tx.input && tx.input.length > 10) {
+            // Look for CID pattern in the transaction input
+            const inputStr = tx.input
+            // Simple heuristic: look for Qm patterns in hex
+            const matches = inputStr.match(/516d[0-9a-f]+/gi)
+            if (matches && matches.length > 0) {
+              // Convert hex to string
+              const hexCID = matches[0]
+              realCID = Buffer.from(hexCID, 'hex').toString('utf8')
+              
+              // Validate it looks like a real CID
+              if (!realCID.startsWith('Qm') || realCID.length < 40) {
+                throw new Error('Invalid CID format')
+              }
+            }
+          }
+        } catch (cidError) {
+          console.warn(`Could not extract CID from tx ${log.transactionHash}:`, cidError)
+          // Keep the fallback value
+        }
         
         cids.push({
           cid: realCID,
