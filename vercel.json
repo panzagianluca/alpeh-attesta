@@ -15,13 +15,5 @@
     "src/app/api/probe/manual/route.ts": {
       "maxDuration": 25
     }
-  },
-  "env": {
-    "NODE_ENV": "production",
-    "NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID": "@wallet_connect_project_id",
-    "NEXT_PUBLIC_WEB3_STORAGE_TOKEN": "@web3_storage_token",
-    "WATCHER_PRIVATE_KEY": "@watcher_private_key",
-    "POLICY_PRIVATE_KEY": "@policy_private_key",
-    "RESTAKER_PRIVATE_KEY": "@restaker_private_key"
   }
 }
