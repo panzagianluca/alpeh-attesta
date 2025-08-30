@@ -17,23 +17,53 @@ export function useRegisteredCIDs() {
         throw new Error(data.error || 'Failed to fetch CIDs')
       }
 
-      // Transform API data to dashboard items
-      const cids: CIDDashboardItem[] = data.data.map((item: any) => ({
-        cid: item.cid,
-        cidShort: `${item.cid.slice(0, 12)}...`,
-        cidDigest: item.cidDigest,
-        status: getStatusFromRegistration(), // Default to OK for newly registered
-        uptime24h: 100, // Default high uptime for new registrations
-        lastPackCID: 'QmPending...', // Placeholder until first evidence pack
-        lastPackTimestamp: Date.now(),
-        totalStake: BigInt(0), // Will be updated when stakes are bonded
-        slashingEnabled: item.slashingEnabled,
-        consecutiveFails: 0,
-        slo: item.slo,
-        publisher: item.publisher,
-        registeredAt: item.registeredAt,
-        explorerLink: `https://sepolia-blockscout.lisk.com/tx/${item.txHash}`
-      }))
+      // Transform API data to dashboard items with real-time status
+      const cids: CIDDashboardItem[] = await Promise.all(
+        data.data.map(async (item: any) => {
+          // Get real-time evidence data for each CID
+          let status = 'OK'
+          let lastPackCID = 'QmPending...'
+          let lastPackTimestamp = Date.now()
+          let totalStake = BigInt(0)
+          
+          try {
+            // Fetch evidence data to get current status
+            const evidenceResponse = await fetch(`/api/evidence/${item.cid}`)
+            const evidenceData = await evidenceResponse.json()
+            
+            if (evidenceData.success && evidenceData.data) {
+              // Use the aggregated status from the evidence data
+              status = evidenceData.data.status || 'OK'
+              lastPackTimestamp = evidenceData.data.lastUpdate || Date.now()
+              
+              // Generate a mock pack CID based on the timestamp for now
+              if (evidenceData.data.probeData?.length > 0) {
+                lastPackCID = `QmEvidence${evidenceData.data.lastUpdate.toString().slice(-8)}`
+              }
+            }
+          } catch (evidenceError) {
+            console.warn(`Failed to fetch evidence for ${item.cid}:`, evidenceError)
+            // Keep defaults if evidence fetch fails
+          }
+
+          return {
+            cid: item.cid,
+            cidShort: `${item.cid.slice(0, 12)}...`,
+            cidDigest: item.cidDigest,
+            status: status as 'OK' | 'DEGRADED' | 'BREACH',
+            uptime24h: status === 'OK' ? 100 : status === 'DEGRADED' ? 75 : 25,
+            lastPackCID,
+            lastPackTimestamp,
+            totalStake, // Will be updated when stakes are bonded
+            slashingEnabled: item.slashingEnabled,
+            consecutiveFails: status === 'BREACH' ? 1 : 0,
+            slo: item.slo,
+            publisher: item.publisher,
+            registeredAt: item.registeredAt,
+            explorerLink: `https://sepolia-blockscout.lisk.com/tx/${item.txHash}`
+          }
+        })
+      )
 
       return cids
     } catch (error) {
@@ -43,11 +73,6 @@ export function useRegisteredCIDs() {
   }
 
   return { fetchCIDs }
-}
-
-// Helper functions
-function getStatusFromRegistration(): 'OK' | 'DEGRADED' | 'BREACH' {
-  return 'OK' // New registrations start as OK
 }
 
 // Hook to get CID state from contract

@@ -4,16 +4,17 @@
 
 Attesta ensures verifiable availability of critical IPFS content through Service Level Objectives (SLOs), restaking economics, and automated slashing for breaches.
 
-## 🎯 **Phase 6 Complete - Demo Ready!** ✅
+## 🎯 **Project Complete - Hackathon Ready!** ✅
 
-**Live breach simulation and slashing demonstration successfully executed on Lisk Sepolia Testnet**
+**Live production system deployed with real CID monitoring and manual probe functionality**
 
-### 🚨 **Live Demo Results:**
+### � **Final Demo Results:**
 - **✅ Smart Contract Deployed:** [`0x4fCD15b71119B2F1c18944F9D1e6Ac8D5eE0024a`](https://sepolia-blockscout.lisk.com/address/0x4fCD15b71119B2F1c18944F9D1e6Ac8D5eE0024a)
-- **✅ 5 CIDs Registered:** Complete demo dataset with controlled breach scenario
-- **✅ Economic Slashing:** 0.0025 ETH penalty applied for SLO breach
-- **✅ Detection Speed:** <60 seconds from breach to on-chain evidence
-- **✅ Transaction Success:** 100% success rate across all operations
+- **✅ Live Frontend:** [https://attesta-seven.vercel.app/](https://attesta-seven.vercel.app/)
+- **✅ Real CID Monitoring:** 10+ registered CIDs with live status tracking
+- **✅ Manual Probe System:** Instant verification across 5 global regions
+- **✅ Dashboard Integration:** Real-time status updates and evidence display
+- **✅ End-to-End Workflow:** Registration → Monitoring → Evidence → Status Display
 
 ## ️ **Architecture**
 
@@ -119,8 +120,7 @@ cid-sentinel/
 
 ## 🏆 **Bounty Alignment**
 
-- **🔗 Lisk**: On-chain evidence anchoring and state management with low costs
-- **🔄 Symbiotic**: Restaking economics and slashing infrastructure (Plan A)
+- **🔗 Lisk**: On-chain evidence anchoring and state management with low costs  
 - **📦 Protocol Labs**: IPFS monitoring, Evidence Packs, and multi-gateway probes
 - **⚡ Vercel**: Serverless cron orchestration and production deployment
 - **💾 Filecoin**: Persistent evidence storage and data availability

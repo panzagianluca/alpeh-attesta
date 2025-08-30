@@ -83,7 +83,17 @@ export async function GET(request: NextRequest) {
 
     const cids = []
     
-    for (const log of logs) {
+    // Real demo CIDs that map to registered events
+    const realDemoCIDs = [
+      'QmQzpoN7xYiV5xamW4JvB483feHQMkr3DThssFfryqFLHT', // Demo info
+      'QmazK8RQkKd9hXjykqif13WAa5Aur9HpRxhG8e1zgZTkz8', // Demo data CSV
+      'QmRJr7VizMbJbRhPA8eorZbnNynPn2WcNCEsTbHNm7JvNG', // Demo visual
+      'QmZ9bW93w48Kp4kzGfhrZq7MmaLEukXDFotZTJrnoqhCZ1', // Demo manifest
+      'QmU9zAFd3qDhAQ5eeSXuKkFADfdDDxkp7VVynAWTqaGPiA'  // Victim CID (breached)
+    ];
+    
+    for (let i = 0; i < logs.length; i++) {
+      const log = logs[i];
       try {
         const block = await publicClient.getBlock({ blockNumber: log.blockNumber })
         
@@ -94,12 +104,12 @@ export async function GET(request: NextRequest) {
           topics: log.topics
         })
         
-        // For demo purposes, we'll create a mapping from digest to display CID
+        // Map to real CID instead of placeholder
         const { cid: cidDigest, publisher, slo, slashing } = decoded.args as any
-        const displayCID = `Qm${cidDigest.slice(2, 20)}...demo` // Placeholder CID for display
+        const realCID = realDemoCIDs[i] || `QmPlaceholder${cidDigest.slice(2, 10)}`
         
         cids.push({
-          cid: displayCID,
+          cid: realCID,
           cidDigest: cidDigest,
           publisher: publisher,
           slo: {

@@ -1,0 +1,11 @@
+
+> attesta@0.1.0 dev /Users/panza/Documents/Aleph/attesta
+> next dev --turbopack
+
+   ▲ Next.js 15.5.2 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.1.207:3000
+   - Environments: .env.local, .env
+
+ ✓ Starting...
+ ✓ Ready in 572ms

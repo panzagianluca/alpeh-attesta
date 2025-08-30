@@ -140,23 +140,31 @@ export function CIDDetailsPage({ cid }: CIDDetailsPageProps) {
         if (response.ok) {
           const data = await response.json()
           
-          // Convert to EvidencePack format
-          const evidencePack: EvidencePack = {
-            cid: `QmEvidence${Date.now()}`, // Evidence pack CID would come from IPFS
-            timestamp: Date.now(),
-            status: data.status,
-            okCount: data.results.filter((r: any) => r.ok).length,
-            totalChecks: data.results.length,
-            probes: data.results.map((result: any) => ({
-              vp: result.region,
-              gateway: result.gateway.split('//')[1] || result.gateway,
-              ok: result.ok,
-              latMs: result.latency
-            }))
+          if (data.success && data.data) {
+            // Convert to EvidencePack format using the correct API structure
+            const evidencePack: EvidencePack = {
+              cid: `QmEvidence${Date.now()}`, // Evidence pack CID would come from IPFS
+              timestamp: Date.now(),
+              status: data.data.status,
+              okCount: data.data.successfulProbes || 0,
+              totalChecks: data.data.totalProbes || 0,
+              probes: (data.data.probeData || []).map((result: any) => ({
+                vp: result.region,
+                gateway: result.gateway.split('//')[1] || result.gateway,
+                ok: result.success,
+                latMs: result.latency
+              }))
+            }
+            
+            setEvidencePacks([evidencePack])
+            setLastCheckTime(new Date())
+          } else {
+            console.warn('Evidence API returned no data:', data)
+            setEvidencePacks([])
           }
-          
-          setEvidencePacks([evidencePack])
-          setLastCheckTime(new Date())
+        } else {
+          console.error('Evidence API request failed:', response.status)
+          setEvidencePacks([])
         }
       } catch (error) {
         console.error('Failed to fetch evidence data:', error)

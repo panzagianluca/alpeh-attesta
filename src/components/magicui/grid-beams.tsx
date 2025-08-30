@@ -43,7 +43,6 @@ interface GridBeamsProps extends HTMLAttributes<HTMLDivElement> {
 
 interface LightRayProps {
   left: string;
-  top: string;
   rotation: number;
   width: number;
   delay: number;
