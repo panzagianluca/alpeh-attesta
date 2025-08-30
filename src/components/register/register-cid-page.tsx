@@ -193,27 +193,27 @@ export function RegisterCIDPage() {
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-[#EDEDED] relative pb-24 pt-24">
       {/* Header */}
-      <div className="sticky top-24 z-40 bg-[#0A0A0A]/95 backdrop-blur-md border-b border-[#EDEDED]/10">
-        <div className="max-w-[896px] mx-auto py-4">
-          <div className="flex items-center space-x-4">
+      <div className="border-b border-[#EDEDED]/10 bg-[#0A0A0A]">
+        <div className="max-w-[896px] mx-auto px-0 py-4">
+          <div className="space-y-4">
+            <div>
+              <h1 className="text-2xl font-bold">Register CID</h1>
+              <p className="text-[#EDEDED]/60 text-sm mt-2">
+                Add your IPFS content to our monitoring network
+              </p>
+            </div>
             <Link href="/dashboard">
               <Button variant="ghost" size="sm" className="text-[#EDEDED]/70 hover:text-[#EDEDED] hover:bg-[#EDEDED]/10">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Dashboard
               </Button>
             </Link>
-            <div>
-              <h1 className="text-2xl font-bold">Register CID</h1>
-              <p className="text-[#EDEDED]/60 text-sm">
-                Add your IPFS content to our monitoring network
-              </p>
-            </div>
           </div>
         </div>
       </div>
 
       {/* Registration Form */}
-      <div className="max-w-[896px] mx-auto px-6 py-8">
+      <div className="max-w-[896px] mx-auto px-0 py-8">
         {/* Network Switcher - Show if wrong network */}
         <div className="mb-6">
           <NetworkSwitcher />

@@ -28,11 +28,19 @@ export function CustomFloatingNavbar() {
         {/* Navigation Links */}
         <div className="flex items-center gap-6">
           <Link 
+            href="/#how-it-works" 
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-[#EDEDED]/70 hover:text-[#38BDF8] hover:bg-[#EDEDED]/10 transition-all duration-200"
+          >
+            <BookOpen className="h-4 w-4" />
+            <span className="text-sm font-medium">How it Works</span>
+          </Link>
+
+          <Link 
             href="/dashboard" 
             className="flex items-center gap-2 px-4 py-2 rounded-lg text-[#EDEDED]/70 hover:text-[#38BDF8] hover:bg-[#EDEDED]/10 transition-all duration-200"
           >
             <Home className="h-4 w-4" />
-            <span className="text-sm font-medium">Home</span>
+            <span className="text-sm font-medium">Dashboard</span>
           </Link>
 
           <Link 
@@ -41,14 +49,6 @@ export function CustomFloatingNavbar() {
           >
             <Shield className="h-4 w-4" />
             <span className="text-sm font-medium">Validators</span>
-          </Link>
-
-          <Link 
-            href="/#how-it-works" 
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-[#EDEDED]/70 hover:text-[#38BDF8] hover:bg-[#EDEDED]/10 transition-all duration-200"
-          >
-            <BookOpen className="h-4 w-4" />
-            <span className="text-sm font-medium">How it Works</span>
           </Link>
         </div>
 

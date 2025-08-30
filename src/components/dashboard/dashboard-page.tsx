@@ -317,9 +317,9 @@ export function DashboardPage() {
                       <div className="flex items-center gap-1 group relative">
                         Stake
                         <Info className="h-3 w-3 cursor-help" />
-                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 p-2 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
+                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-56 p-3 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 shadow-lg">
                           <div className="font-semibold mb-1">Bond Stake (Economic Security)</div>
-                          <div>Total ETH staked by node operators to guarantee evidence integrity. Higher stakes = stronger commitment to data preservation.</div>
+                          <div className="leading-relaxed">Total ETH staked by node operators to guarantee evidence integrity. Higher stakes = stronger commitment to data preservation.</div>
                           <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                         </div>
                       </div>

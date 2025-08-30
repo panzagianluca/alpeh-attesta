@@ -129,29 +129,29 @@ export function ValidatorsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0A0A0A] via-[#1A1A1A] to-[#0A0A0A] text-[#EDEDED]">
+    <div className="min-h-screen bg-[#0A0A0A] text-[#EDEDED] relative pb-24 pt-24">
       {/* Header */}
-      <div className="border-b border-[#EDEDED]/10 bg-[#0A0A0A]/50 backdrop-blur">
-        <div className="max-w-[896px] mx-auto px-6 py-6">
-          <div className="flex items-center justify-between">
+      <div className="border-b border-[#EDEDED]/10 bg-[#0A0A0A]">
+        <div className="max-w-[896px] mx-auto px-0 py-4">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <h1 className="text-2xl font-bold">Validator Opportunities</h1>
+              <p className="text-[#EDEDED]/60 text-sm max-w-2xl">
+                Stake ETH to monitor CIDs and earn rewards for maintaining availability guarantees
+              </p>
+            </div>
             <Link href="/dashboard">
               <Button variant="ghost" size="sm" className="text-[#EDEDED]/70 hover:text-[#EDEDED] hover:bg-[#EDEDED]/10">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Dashboard
               </Button>
             </Link>
-            <div>
-              <h1 className="text-2xl font-bold">Validator Opportunities</h1>
-              <p className="text-[#EDEDED]/60 text-sm">
-                Stake ETH to monitor CIDs and earn rewards
-              </p>
-            </div>
           </div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="max-w-[896px] mx-auto px-6 py-8">
+      <div className="max-w-[896px] mx-auto px-0 py-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card className="bg-[#0A0A0A] border-[#EDEDED]/10">
