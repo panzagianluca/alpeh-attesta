@@ -15,10 +15,10 @@ export function CustomFloatingNavbar() {
               src="/attesta.svg" 
               alt="Attesta" 
               style={{ 
-                height: '36px',
+                height: '24px',
                 width: 'auto',
-                minHeight: '36px',
-                maxHeight: '36px',
+                minHeight: '24px',
+                maxHeight: '24px',
                 flexShrink: 0
               }}
             />
