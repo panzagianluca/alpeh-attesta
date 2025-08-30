@@ -42,37 +42,19 @@ interface CIDData {
   totalStake: bigint
 }
 
-// Mock evidence pack data - replace with real IPFS fetching
-const mockEvidencePacks = [
-  {
-    cid: 'QmPackHash1234567890abcdef',
-    timestamp: Date.now() - 300000, // 5 minutes ago
-    status: 'OK',
-    okCount: 4,
-    totalChecks: 5,
-    probes: [
-      { vp: 'us-east', gateway: 'ipfs.io', ok: true, latMs: 420 },
-      { vp: 'eu-west', gateway: 'dweb.link', ok: true, latMs: 530 },
-      { vp: 'ap-south', gateway: 'cloudflare-ipfs.com', ok: true, latMs: 680 },
-      { vp: 'us-west', gateway: 'gateway.pinata.cloud', ok: true, latMs: 380 },
-      { vp: 'eu-north', gateway: 'ipfs.filebase.io', ok: false, latMs: 0 }
-    ]
-  },
-  {
-    cid: 'QmPackHash0987654321fedcba',
-    timestamp: Date.now() - 600000, // 10 minutes ago
-    status: 'OK',
-    okCount: 5,
-    totalChecks: 5,
-    probes: [
-      { vp: 'us-east', gateway: 'ipfs.io', ok: true, latMs: 390 },
-      { vp: 'eu-west', gateway: 'dweb.link', ok: true, latMs: 450 },
-      { vp: 'ap-south', gateway: 'cloudflare-ipfs.com', ok: true, latMs: 620 },
-      { vp: 'us-west', gateway: 'gateway.pinata.cloud', ok: true, latMs: 340 },
-      { vp: 'eu-north', gateway: 'ipfs.filebase.io', ok: true, latMs: 510 }
-    ]
-  }
-]
+interface EvidencePack {
+  cid: string
+  timestamp: number
+  status: string
+  okCount: number
+  totalChecks: number
+  probes: Array<{
+    vp: string
+    gateway: string
+    ok: boolean
+    latMs: number
+  }>
+}
 
 export function CIDDetailsPage({ cid }: CIDDetailsPageProps) {
   const { isConnected } = useAccount()
@@ -80,6 +62,9 @@ export function CIDDetailsPage({ cid }: CIDDetailsPageProps) {
   const [selectedPack, setSelectedPack] = useState(0)
   const [stakeAmount, setStakeAmount] = useState('0.1')
   const [showStakeInput, setShowStakeInput] = useState(false)
+  const [evidencePacks, setEvidencePacks] = useState<EvidencePack[]>([])
+  const [loadingEvidence, setLoadingEvidence] = useState(false)
+  const [lastCheckTime, setLastCheckTime] = useState<Date | null>(null)
 
   // Calculate CID digest for contract interaction
   const cidDigest = keccak256(toBytes(cid))
@@ -144,6 +129,48 @@ export function CIDDetailsPage({ cid }: CIDDetailsPageProps) {
       console.error('CID Error:', cidError)
     }
   }, [cidData, cidError, parsedCidData])
+
+  // Fetch evidence data when component mounts
+  useEffect(() => {
+    const fetchEvidenceData = async () => {
+      setLoadingEvidence(true)
+      try {
+        // Fetch current evidence
+        const response = await fetch(`/api/evidence/${cid}`)
+        if (response.ok) {
+          const data = await response.json()
+          
+          // Convert to EvidencePack format
+          const evidencePack: EvidencePack = {
+            cid: `QmEvidence${Date.now()}`, // Evidence pack CID would come from IPFS
+            timestamp: Date.now(),
+            status: data.status,
+            okCount: data.results.filter((r: any) => r.ok).length,
+            totalChecks: data.results.length,
+            probes: data.results.map((result: any) => ({
+              vp: result.region,
+              gateway: result.gateway.split('//')[1] || result.gateway,
+              ok: result.ok,
+              latMs: result.latency
+            }))
+          }
+          
+          setEvidencePacks([evidencePack])
+          setLastCheckTime(new Date())
+        }
+      } catch (error) {
+        console.error('Failed to fetch evidence data:', error)
+        // Set empty array on error
+        setEvidencePacks([])
+      } finally {
+        setLoadingEvidence(false)
+      }
+    }
+
+    if (cid) {
+      fetchEvidenceData()
+    }
+  }, [cid])
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
@@ -313,16 +340,24 @@ export function CIDDetailsPage({ cid }: CIDDetailsPageProps) {
                 <>
                   <div className="flex items-center justify-between">
                     <span className="text-[#EDEDED]/60">Current Status</span>
-                    {getStatusBadge('OK')}
+                    {evidencePacks.length > 0 ? 
+                      getStatusBadge(evidencePacks[0].status) : 
+                      <Badge variant="outline">Unknown</Badge>
+                    }
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-[#EDEDED]/60">Last Check</span>
-                    <span className="text-sm">5 minutes ago</span>
+                    <span className="text-sm">
+                      {lastCheckTime ? `${Math.round((Date.now() - lastCheckTime.getTime()) / 60000)} minutes ago` : 'No data'}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-[#EDEDED]/60">Total Stake</span>
                     <span className="font-bold text-[#38BDF8]">
-                      {parsedCidData.totalStake.toString()} wei
+                      {parsedCidData.totalStake > BigInt(0) 
+                        ? `${(Number(parsedCidData.totalStake) / 1e18).toFixed(4)} ETH`
+                        : '0 ETH'
+                      }
                     </span>
                   </div>
                 </>
@@ -479,7 +514,7 @@ export function CIDDetailsPage({ cid }: CIDDetailsPageProps) {
                 <span>Evidence Packs Timeline</span>
               </div>
               <Badge variant="outline" className="text-xs">
-                {mockEvidencePacks.length} packs
+                {loadingEvidence ? 'Loading...' : `${evidencePacks.length} packs`}
               </Badge>
             </CardTitle>
             <CardDescription>
@@ -487,98 +522,113 @@ export function CIDDetailsPage({ cid }: CIDDetailsPageProps) {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Pack Selection */}
-            <div className="flex space-x-2 overflow-x-auto pb-2">
-              {mockEvidencePacks.map((pack, index) => (
-                <Button
-                  key={index}
-                  variant={selectedPack === index ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedPack(index)}
-                  className={`flex-shrink-0 ${
-                    selectedPack === index 
-                      ? 'bg-[#38BDF8] text-[#0A0A0A]' 
-                      : 'border-[#EDEDED]/20 text-[#EDEDED] hover:bg-[#EDEDED]/10'
-                  }`}
-                >
-                  <Clock className="w-3 h-3 mr-1" />
-                  {formatTimestamp(pack.timestamp).split(',')[1]?.trim()}
-                </Button>
-              ))}
-            </div>
-
-            {/* Selected Pack Details */}
-            {mockEvidencePacks[selectedPack] && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="font-medium">Pack {selectedPack + 1}</h4>
-                    <p className="text-sm text-[#EDEDED]/60">
-                      {formatTimestamp(mockEvidencePacks[selectedPack].timestamp)}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    {getStatusBadge(mockEvidencePacks[selectedPack].status)}
-                    <p className="text-sm text-[#EDEDED]/60 mt-1">
-                      {mockEvidencePacks[selectedPack].okCount}/{mockEvidencePacks[selectedPack].totalChecks} success
-                    </p>
-                  </div>
-                </div>
-
-                {/* Probe Results */}
-                <div className="space-y-2">
-                  <h5 className="text-sm font-medium">Probe Results</h5>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                    {mockEvidencePacks[selectedPack].probes.map((probe, probeIndex) => (
-                      <div 
-                        key={probeIndex}
-                        className="flex items-center justify-between p-3 bg-[#EDEDED]/5 rounded"
-                      >
-                        <div className="flex items-center space-x-2">
-                          {probe.ok ? (
-                            <CheckCircle className="w-3 h-3 text-green-500" />
-                          ) : (
-                            <AlertCircle className="w-3 h-3 text-red-500" />
-                          )}
-                          <span className="text-sm font-mono">{probe.vp}</span>
-                        </div>
-                        <div className="text-xs text-[#EDEDED]/60">
-                          {probe.ok ? `${probe.latMs}ms` : 'Failed'}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="text-xs text-[#EDEDED]/50 mt-2">
-                    Gateway endpoints: {mockEvidencePacks[selectedPack].probes.map(p => p.gateway).join(', ')}
-                  </div>
-                </div>
-
-                {/* Pack CID */}
-                <div className="p-4 bg-[#EDEDED]/5 rounded">
-                  <Label className="text-xs text-[#EDEDED]/60">Evidence Pack CID</Label>
-                  <div className="flex items-center space-x-2 mt-2">
-                    <code className="text-sm font-mono flex-1">
-                      {mockEvidencePacks[selectedPack].cid}
-                    </code>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => copyToClipboard(mockEvidencePacks[selectedPack].cid)}
-                      className="h-8 w-8 p-0 hover:bg-[#EDEDED]/10"
-                    >
-                      <Copy className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => openInGateway(mockEvidencePacks[selectedPack].cid)}
-                      className="h-8 w-8 p-0 hover:bg-[#EDEDED]/10"
-                    >
-                      <ExternalLink className="h-3 w-3" />
-                    </Button>
-                  </div>
-                </div>
+            {loadingEvidence ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin mr-2" />
+                <span>Loading evidence data...</span>
               </div>
+            ) : evidencePacks.length === 0 ? (
+              <div className="text-center py-8 text-[#EDEDED]/60">
+                <Info className="h-8 w-8 mx-auto mb-2" />
+                <p>No evidence packs available</p>
+                <p className="text-sm">Run a probe to collect evidence data</p>
+              </div>
+            ) : (
+              <>
+                {/* Pack Selection */}
+                <div className="flex space-x-2 overflow-x-auto pb-2">
+                  {evidencePacks.map((pack: EvidencePack, index: number) => (
+                    <Button
+                      key={index}
+                      variant={selectedPack === index ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setSelectedPack(index)}
+                      className={`flex-shrink-0 ${
+                        selectedPack === index 
+                          ? 'bg-[#38BDF8] text-[#0A0A0A]' 
+                          : 'border-[#EDEDED]/20 text-[#EDEDED] hover:bg-[#EDEDED]/10'
+                      }`}
+                    >
+                      <Clock className="w-3 h-3 mr-1" />
+                      {formatTimestamp(pack.timestamp).split(',')[1]?.trim()}
+                    </Button>
+                  ))}
+                </div>
+
+                {/* Selected Pack Details */}
+                {evidencePacks[selectedPack] && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-medium">Pack {selectedPack + 1}</h4>
+                        <p className="text-sm text-[#EDEDED]/60">
+                          {formatTimestamp(evidencePacks[selectedPack].timestamp)}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        {getStatusBadge(evidencePacks[selectedPack].status)}
+                        <p className="text-sm text-[#EDEDED]/60 mt-1">
+                          {evidencePacks[selectedPack].okCount}/{evidencePacks[selectedPack].totalChecks} success
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Probe Results */}
+                    <div className="space-y-2">
+                      <h5 className="text-sm font-medium">Probe Results</h5>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                        {evidencePacks[selectedPack].probes.map((probe, probeIndex: number) => (
+                          <div 
+                            key={probeIndex}
+                            className="flex items-center justify-between p-3 bg-[#EDEDED]/5 rounded"
+                          >
+                            <div className="flex items-center space-x-2">
+                              {probe.ok ? (
+                                <CheckCircle className="w-3 h-3 text-green-500" />
+                              ) : (
+                                <AlertCircle className="w-3 h-3 text-red-500" />
+                              )}
+                              <span className="text-sm font-mono">{probe.vp}</span>
+                            </div>
+                            <div className="text-xs text-[#EDEDED]/60">
+                              {probe.ok ? `${probe.latMs}ms` : 'Failed'}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="text-xs text-[#EDEDED]/50 mt-2">
+                        Gateway endpoints: {evidencePacks[selectedPack].probes.map((p: any) => p.gateway).join(', ')}
+                      </div>
+                    </div>
+
+                    {/* Pack CID */}
+                    <div className="p-4 bg-[#EDEDED]/5 rounded">
+                      <Label className="text-xs text-[#EDEDED]/60">Evidence Pack CID</Label>
+                      <div className="flex items-center space-x-2 mt-2">
+                        <code className="text-sm font-mono flex-1">
+                          {evidencePacks[selectedPack].cid}
+                        </code>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => copyToClipboard(evidencePacks[selectedPack].cid)}
+                          className="h-8 w-8 p-0 hover:bg-[#EDEDED]/10"
+                        >
+                          <Copy className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => openInGateway(evidencePacks[selectedPack].cid)}
+                          className="h-8 w-8 p-0 hover:bg-[#EDEDED]/10"
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </CardContent>
         </Card>
