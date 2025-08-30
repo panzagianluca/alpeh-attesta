@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createProbeExecutor } from '@/lib/probe-executor';
+import { getGatewayDisplayName } from '@/lib/gateway-utils';
 
 export async function GET(
   request: NextRequest,
@@ -33,6 +34,7 @@ export async function GET(
       return {
         region,
         gateway: result.gateway,
+        gatewayName: result.gatewayName || getGatewayDisplayName(result.gateway),
         success: result.success,
         latency: result.responseTime,
         status: result.success ? 'OK' : 'Failed',
@@ -76,7 +78,8 @@ function getRegionFromGateway(gateway: string, index: number): string {
     'ipfs.io': 'us-east',
     'dweb.link': 'eu-west', 
     'cloudflare-ipfs.com': 'global-cdn',
-    'gateway.pinata.cloud': 'us-west',
+    'w3s.link': 'us-west',
+    'gateway.pinata.cloud': 'us-central',
     '4everland.io': 'ap-south'
   };
 

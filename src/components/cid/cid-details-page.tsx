@@ -149,7 +149,7 @@ export function CIDDetailsPage({ cid }: CIDDetailsPageProps) {
               okCount: data.data.successfulProbes || 0,
               totalChecks: data.data.totalProbes || 0,
               probes: (data.data.probeData || []).map((result: any) => ({
-                vp: result.region,
+                vp: result.gatewayName || result.gateway.split('//')[1] || result.gateway,
                 gateway: result.gateway.split('//')[1] || result.gateway,
                 ok: result.success,
                 latMs: result.latency

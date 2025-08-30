@@ -5,8 +5,11 @@
  * to determine CID availability and network health.
  */
 
+import { getGatewayDisplayName } from './gateway-utils';
+
 export interface ProbeResult {
   gateway: string;
+  gatewayName?: string;
   success: boolean;
   responseTime: number;
   statusCode?: number;
@@ -50,15 +53,18 @@ export class ProbeExecutor {
 
   private getDefaultGateways(): string[] {
     // Get gateways from environment or use defaults
-    const envGateways = process.env.IPFS_GATEWAYS;
+    const envGateways = process.env.NEXT_PUBLIC_GATEWAYS;
     if (envGateways) {
-      return envGateways.split(',').map(g => g.trim()).filter(Boolean);
+      return envGateways.split(',').map(g => g.trim()).filter(Boolean).map(g => 
+        g.endsWith('/') ? g + 'ipfs/' : g + '/ipfs/'
+      );
     }
 
     return [
       'https://ipfs.io/ipfs/',
       'https://dweb.link/ipfs/',
       'https://cloudflare-ipfs.com/ipfs/',
+      'https://w3s.link/ipfs/',
       'https://gateway.pinata.cloud/ipfs/',
       'https://4everland.io/ipfs/'
     ];
@@ -109,6 +115,7 @@ export class ProbeExecutor {
 
       return {
         gateway,
+        gatewayName: getGatewayDisplayName(gateway),
         success: response.ok,
         responseTime,
         statusCode: response.status,
@@ -123,6 +130,7 @@ export class ProbeExecutor {
       
       return {
         gateway,
+        gatewayName: getGatewayDisplayName(gateway),
         success: false,
         responseTime,
         error: error instanceof Error ? error.message : 'Unknown error',
