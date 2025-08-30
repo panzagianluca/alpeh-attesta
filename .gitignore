@@ -42,8 +42,12 @@ next-env.d.ts
 .env.local
 contracts/out
 
-# Documentation (keep docs internal, clean repo)
-/docs
+# Documentation (keep internal docs out of hackathon submission)
+/docs/
+docs/
 attesta-plan.md
 *.md
 !README.md
+
+# Internal XML files
+AlephHackathon.xml
