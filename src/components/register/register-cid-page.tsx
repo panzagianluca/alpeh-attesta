@@ -120,7 +120,7 @@ export function RegisterCIDPage() {
         abi: EvidenceRegistryABI,
         functionName: 'registerCID',
         args: [
-          cid,  // Pass the actual CID string, not the hash!
+          cidDigest,  // Pass the hash for now (current contract expects bytes32)
           {
             k: customSLO.k,
             n: customSLO.n,
