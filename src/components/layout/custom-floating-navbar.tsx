@@ -1,7 +1,7 @@
 'use client'
 
 import { WalletConnect } from "@/components/web3/wallet-connect"
-import { Home, BookOpen } from "lucide-react"
+import { Home, BookOpen, Shield } from "lucide-react"
 import Link from "next/link"
 
 export function CustomFloatingNavbar() {
@@ -33,6 +33,14 @@ export function CustomFloatingNavbar() {
           >
             <Home className="h-4 w-4" />
             <span className="text-sm font-medium">Home</span>
+          </Link>
+
+          <Link 
+            href="/validators" 
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-[#EDEDED]/70 hover:text-[#38BDF8] hover:bg-[#EDEDED]/10 transition-all duration-200"
+          >
+            <Shield className="h-4 w-4" />
+            <span className="text-sm font-medium">Validators</span>
           </Link>
 
           <Link 

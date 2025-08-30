@@ -1,9 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useAccount, useReadContract, useChainId } from 'wagmi'
-import { keccak256, toBytes } from 'viem'
+import { useAccount, useReadContract, useChainId, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
+import { keccak256, toBytes, parseEther } from 'viem'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -80,12 +82,30 @@ export function CIDDetailsPage({ cid }: CIDDetailsPageProps) {
   const { isConnected } = useAccount()
   const chainId = useChainId()
   const [selectedPack, setSelectedPack] = useState(0)
+  const [stakeAmount, setStakeAmount] = useState('0.1')
+  const [showStakeInput, setShowStakeInput] = useState(false)
 
   // Calculate CID digest for contract interaction
   const cidDigest = keccak256(toBytes(cid))
 
   // Get contract address for current chain
   const contractAddress = CONTRACT_ADDRESSES[chainId as keyof typeof CONTRACT_ADDRESSES]?.attestaCore
+
+  // Write contract hook for bonding stake
+  const { 
+    writeContract: bondStake, 
+    isPending: isBondPending,
+    data: bondHash,
+    error: bondError 
+  } = useWriteContract()
+
+  // Wait for bond transaction confirmation
+  const { 
+    isLoading: isBondConfirming, 
+    isSuccess: isBondConfirmed 
+  } = useWaitForTransactionReceipt({
+    hash: bondHash,
+  })
 
   // Read CID data from contract
   const { 
@@ -124,6 +144,25 @@ export function CIDDetailsPage({ cid }: CIDDetailsPageProps) {
 
   const formatTimestamp = (timestamp: number) => {
     return new Date(timestamp).toLocaleString()
+  }
+
+  const handleBondStake = async () => {
+    if (!isConnected || !contractAddress || contractAddress === '0x...') {
+      alert('Please connect your wallet and ensure you are on the correct network')
+      return
+    }
+
+    try {
+      bondStake({
+        address: contractAddress as `0x${string}`,
+        abi: EvidenceRegistryABI,
+        functionName: 'bondStake',
+        args: [cidDigest],
+        value: parseEther(stakeAmount)
+      })
+    } catch (error) {
+      console.error('Bond stake error:', error)
+    }
   }
 
   const getStatusBadge = (status: string) => {
@@ -340,14 +379,85 @@ export function CIDDetailsPage({ cid }: CIDDetailsPageProps) {
                   <span>Actions</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <Button 
-                  className="w-full bg-[#38BDF8] text-[#0A0A0A] hover:bg-[#38BDF8]/90"
-                  onClick={() => {/* TODO: Implement bond stake */}}
-                >
-                  <DollarSign className="w-4 h-4 mr-2" />
-                  Bond Stake
-                </Button>
+              <CardContent className="space-y-4">
+                {/* Bond Stake Section */}
+                {!showStakeInput ? (
+                  <Button 
+                    className="w-full bg-[#38BDF8] text-[#0A0A0A] hover:bg-[#38BDF8]/90"
+                    onClick={() => setShowStakeInput(true)}
+                    disabled={!isConnected}
+                  >
+                    <DollarSign className="w-4 h-4 mr-2" />
+                    Bond Stake as Validator
+                  </Button>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="stakeAmount" className="text-sm">Stake Amount</Label>
+                      <div className="flex items-center space-x-2">
+                        <Input
+                          id="stakeAmount"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={stakeAmount}
+                          onChange={(e) => setStakeAmount(e.target.value)}
+                          className="bg-[#0A0A0A] border-[#EDEDED]/20 text-[#EDEDED]"
+                          placeholder="0.1"
+                        />
+                        <span className="text-[#EDEDED]/60 text-sm">ETH</span>
+                      </div>
+                      <p className="text-xs text-[#EDEDED]/60">
+                        Stake ETH to become a validator for this CID. You'll earn rewards for monitoring availability.
+                      </p>
+                    </div>
+                    
+                    <div className="flex space-x-2">
+                      <Button 
+                        className="flex-1 bg-[#38BDF8] text-[#0A0A0A] hover:bg-[#38BDF8]/90"
+                        onClick={handleBondStake}
+                        disabled={isBondPending || isBondConfirming || !stakeAmount || parseFloat(stakeAmount) <= 0}
+                      >
+                        {isBondPending || isBondConfirming ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            {isBondPending ? 'Confirming...' : 'Processing...'}
+                          </>
+                        ) : (
+                          'Bond Stake'
+                        )}
+                      </Button>
+                      <Button 
+                        variant="outline"
+                        className="border-[#EDEDED]/20 text-[#EDEDED] hover:bg-[#EDEDED]/10"
+                        onClick={() => setShowStakeInput(false)}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Transaction Status */}
+                {bondError && (
+                  <Alert className="border-red-500/20 bg-red-500/10">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription className="text-red-400 text-sm">
+                      <strong>Error:</strong> {bondError.message}
+                    </AlertDescription>
+                  </Alert>
+                )}
+                
+                {isBondConfirmed && (
+                  <Alert className="border-green-500/20 bg-green-500/10">
+                    <CheckCircle className="h-4 w-4" />
+                    <AlertDescription className="text-green-400 text-sm">
+                      <strong>Success!</strong> You've bonded {stakeAmount} ETH stake to this CID. You're now a validator!
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                {/* View Content Button */}
                 <Button 
                   variant="outline" 
                   className="w-full border-[#EDEDED]/20 text-[#EDEDED] hover:bg-[#EDEDED]/10"

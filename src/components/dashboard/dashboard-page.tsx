@@ -297,7 +297,7 @@ export function DashboardPage() {
             </CardContent>
           </Card>
         ) : (
-          <Card className="bg-[#0A0A0A] border-[#EDEDED]/10">
+          <Card className="bg-[#0A0A0A] border-[#EDEDED]/10 pb-0">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 <span>Your Monitored Content</span>

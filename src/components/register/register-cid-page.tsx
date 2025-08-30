@@ -17,7 +17,10 @@ import {
   CheckCircle, 
   Loader2, 
   ArrowLeft,
-  Info
+  Info,
+  Shield,
+  ChevronDown,
+  TrendingUp
 } from 'lucide-react'
 import Link from 'next/link'
 import { CONTRACT_ADDRESSES, liskSepolia } from '@/lib/wagmi'
@@ -38,6 +41,10 @@ export function RegisterCIDPage() {
   const [selectedPreset, setSelectedPreset] = useState('Normal')
   const [customSLO, setCustomSLO] = useState(SLO_PRESETS.Normal)
   const [slashingEnabled, setSlashingEnabled] = useState(true)
+  const [minimumStake, setMinimumStake] = useState('0.1')
+  const [slashingPercentage, setSlashingPercentage] = useState('10')
+  const [monthlyBudget, setMonthlyBudget] = useState('0.1')
+  const [selectedTier, setSelectedTier] = useState('Good')
   const [isValidCid, setIsValidCid] = useState(false)
 
   const { 
@@ -71,6 +78,20 @@ export function RegisterCIDPage() {
     if (preset in SLO_PRESETS) {
       setCustomSLO(SLO_PRESETS[preset as keyof typeof SLO_PRESETS])
     }
+  }
+
+  const handleTierSelection = (tier: any) => {
+    setSelectedTier(tier.level)
+    setMonthlyBudget(tier.monthlyBudget)
+    setMinimumStake(tier.validatorStake)
+    
+    // Update SLO based on tier
+    const sloMapping = {
+      'Basic': { k: 1, n: 5, timeout: 10, window: 60 },
+      'Good': { k: 3, n: 5, timeout: 5, window: 30 },
+      'Premium': { k: 5, n: 5, timeout: 1, window: 15 }
+    }
+    setCustomSLO(sloMapping[tier.level as keyof typeof sloMapping])
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -292,20 +313,23 @@ export function RegisterCIDPage() {
             </CardContent>
           </Card>
 
-          {/* Slashing Configuration */}
+          {/* Validator Requirements */}
           <Card className="bg-[#0A0A0A] border-[#EDEDED]/10">
             <CardHeader>
-              <CardTitle>Economic Guarantees</CardTitle>
+              <CardTitle className="flex items-center space-x-2">
+                <Shield className="h-5 w-5" />
+                <span>Validator Requirements</span>
+              </CardTitle>
               <CardDescription>
-                Configure slashing conditions for economic penalties
+                Set the minimum requirements for validators who want to monitor this CID
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
-                  <Label className="text-base">Enable Slashing</Label>
+                  <Label className="text-base">Enable Economic Guarantees</Label>
                   <p className="text-sm text-[#EDEDED]/60">
-                    Validators lose stake if they fail to meet SLO requirements
+                    Validators must stake ETH and can be slashed for SLO violations
                   </p>
                 </div>
                 <Switch
@@ -314,13 +338,72 @@ export function RegisterCIDPage() {
                   className="data-[state=checked]:bg-[#38BDF8]"
                 />
               </div>
+
+              {slashingEnabled && (
+                <div className="space-y-4 pt-4 border-t border-[#EDEDED]/10">
+                  {/* Minimum Validator Stake */}
+                  <div className="space-y-2">
+                    <Label htmlFor="minimumStake" className="text-base">Minimum Validator Stake</Label>
+                    <div className="flex items-center space-x-2">
+                      <Input
+                        id="minimumStake"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={minimumStake}
+                        onChange={(e) => setMinimumStake(e.target.value)}
+                        className="bg-[#0A0A0A] border-[#EDEDED]/20 text-[#EDEDED] max-w-32"
+                        placeholder="0.1"
+                      />
+                      <span className="text-[#EDEDED]/60 text-sm">ETH</span>
+                    </div>
+                    <p className="text-sm text-[#EDEDED]/60">
+                      Minimum amount validators must stake (their own money) to monitor this CID
+                    </p>
+                  </div>
+
+                  {/* Slashing Percentage */}
+                  <div className="space-y-2">
+                    <Label htmlFor="slashingPercentage" className="text-base">Slashing Penalty</Label>
+                    <div className="flex items-center space-x-2">
+                      <Input
+                        id="slashingPercentage"
+                        type="number"
+                        min="1"
+                        max="100"
+                        value={slashingPercentage}
+                        onChange={(e) => setSlashingPercentage(e.target.value)}
+                        className="bg-[#0A0A0A] border-[#EDEDED]/20 text-[#EDEDED] max-w-24"
+                        placeholder="10"
+                      />
+                      <span className="text-[#EDEDED]/60 text-sm">% of stake</span>
+                    </div>
+                    <p className="text-sm text-[#EDEDED]/60">
+                      Percentage of validator stake slashed for SLO violations
+                    </p>
+                  </div>
+
+                  {/* Validator Economics Info */}
+                  <div className="bg-[#38BDF8]/5 border border-[#38BDF8]/20 rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-[#38BDF8] mb-2">How Validator Staking Works</h4>
+                    <div className="space-y-2 text-xs text-[#EDEDED]/70">
+                      <div>• <strong>Validators stake their own ETH</strong> (minimum {minimumStake || '0.1'} ETH) to monitor your CID</div>
+                      <div>• <strong>They earn rewards</strong> from the network for successful monitoring</div>
+                      <div>• <strong>They lose {slashingPercentage || '10'}% of their stake</strong> if they fail to meet SLO requirements</div>
+                      <div>• <strong>Higher stake requirements</strong> attract more serious validators</div>
+                    </div>
+                  </div>
+                </div>
+              )}
               
               {slashingEnabled && (
                 <Alert className="border-orange-500/20 bg-orange-500/5">
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription className="text-orange-400">
-                    <strong>Warning:</strong> Slashing is enabled. Validators who fail to meet SLO requirements 
-                    will lose part of their staked tokens as economic penalty.
+                    <strong>Validator Economics:</strong> Validators must stake {minimumStake || '0.1'} ETH minimum of their own money. 
+                    {slashingPercentage || '10'}% of their stake will be slashed for SLO violations.
+                    <br />
+                    <strong>Note:</strong> Registration is free for you. Validators pay to participate and earn rewards for good service.
                   </AlertDescription>
                 </Alert>
               )}

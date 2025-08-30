@@ -14,9 +14,11 @@ import {
   Clock, 
   CheckCircle, 
   AlertTriangle,
+  DollarSign,
   TrendingUp,
   Users
 } from 'lucide-react'
+import Link from 'next/link'
 
 export function DashboardContent() {
   const { address, isConnected } = useAccount()
@@ -237,13 +239,16 @@ export function DashboardContent() {
               <CardContent>
                 <div className="text-center py-8">
                   <Shield className="h-16 w-16 text-[#38BDF8] mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold mb-2">Validator Features Coming Soon</h3>
+                  <h3 className="text-xl font-semibold mb-2">Start Earning as a Validator</h3>
                   <p className="text-[#EDEDED]/70 mb-4">
-                    Validator staking and management features are currently in development
+                    Monitor CID availability and earn rewards for your service
                   </p>
-                  <Button variant="outline" className="border-[#38BDF8] text-[#38BDF8]">
-                    Join Waitlist
-                  </Button>
+                  <Link href="/validators">
+                    <Button className="bg-[#38BDF8] text-[#0A0A0A] hover:bg-[#38BDF8]/90">
+                      <DollarSign className="h-4 w-4 mr-2" />
+                      View Staking Opportunities
+                    </Button>
+                  </Link>
                 </div>
               </CardContent>
             </Card>
