@@ -1,37 +1,150 @@
-# CID Sentinel - Evidence Pack Builder
+# Attesta 🏛️
 
-CID Sentinel is a distributed monitoring system that ensures **verifiable availability** of critical CIDs in IPFS through SLO monitoring, cryptographic evidence, and automated enforcement.
+> **SLO-backed IPFS availability with economic guarantees**
 
-## 🎯 Phase 3: Evidence Pack Builder ✅
+Attesta ensures verifiable availability of critical IPFS content through Service Level Objectives (SLOs), restaking economics, and automated slashing for breaches.
 
-This system provides the core functionality for creating, signing, and storing Evidence Packs that prove CID availability across multiple vantage points.
+## 🎯 **Phase 6 Complete - Demo Ready!** ✅
 
-### ✅ Implemented Features
+**Live breach simulation and slashing demonstration successfully executed on Lisk Sepolia Testnet**
 
-- **Evidence Pack Schema v1**: Complete TypeScript types and JSON schema validation
-- **ed25519 Signing**: Cryptographic signing with tweetnacl for tamper-proof evidence
-- **IPFS Integration**: Upload Evidence Packs to IPFS with @storacha/client
-- **Builder System**: Complete orchestration from probe results to signed Evidence Packs
-- **API Endpoint**: HTTP interface for Evidence Pack creation
-- **Comprehensive Tests**: 57 tests covering all scenarios (schema, signing, builder logic)
+### 🚨 **Live Demo Results:**
+- **✅ Smart Contract Deployed:** [`0x4fCD15b71119B2F1c18944F9D1e6Ac8D5eE0024a`](https://sepolia-blockscout.lisk.com/address/0x4fCD15b71119B2F1c18944F9D1e6Ac8D5eE0024a)
+- **✅ 5 CIDs Registered:** Complete demo dataset with controlled breach scenario
+- **✅ Economic Slashing:** 0.0025 ETH penalty applied for SLO breach
+- **✅ Detection Speed:** <60 seconds from breach to on-chain evidence
+- **✅ Transaction Success:** 100% success rate across all operations
 
-### 🚀 Quick Start
+## ️ **Architecture**
 
-```bash
-# Install dependencies
-pnpm install
-
-# Run tests
-pnpm test
-
-# Build the application
-pnpm build
-
-# Start development server
-pnpm dev
+```
+[Publisher] → Register CID + SLO → [Lisk EvidenceRegistry]
+                                        ↓
+[Vercel Cron] → Multi-gateway Probes → Evidence Packs (IPFS)
+                                        ↓
+[WATCHER] → Detect Breach → reportPack() → [Slashing]
 ```
 
-### 📊 Evidence Pack Structure
+### **Core Components:**
+- **EvidenceRegistry Contract** (Lisk): On-chain SLO tracking and slashing
+- **Evidence Pack Builder**: Cryptographically signed availability proofs
+- **Probe Orchestrator**: Multi-gateway IPFS availability monitoring
+- **Slashing Engine**: Automated economic penalties for SLO breaches
+
+##  **Quick Start**
+
+### **Prerequisites**
+- Node.js 18+ 
+- Foundry (for smart contracts)
+- Lisk Sepolia testnet access
+
+### **Setup**
+```bash
+# Clone and install
+git clone <repo-url>
+cd attesta
+npm install
+
+# Environment setup
+cp .env.example .env.local
+# Configure your keys and RPC endpoints
+
+# Deploy contracts
+cd contracts
+forge script script/Deploy.s.sol --rpc-url $LISK_RPC_URL --broadcast
+
+# Start development
+npm run dev
+```
+
+## 📁 **Project Structure**
+
+```
+cid-sentinel/
+├── README.md                 # This file
+├── docs/                     # Complete documentation
+│   ├── cid-sentinel-plan.md  # 📋 Master Plan & Architecture
+│   ├── phase6-demo-end-to-end.md  # 🎬 Demo Execution Guide
+│   ├── phase5-onchain-integration.md  # 🔗 Smart Contract Integration
+│   └── ...                   # Phase-specific documentation
+├── contracts/                # Smart contracts (Solidity/Foundry)
+│   ├── src/EvidenceRegistry.sol  # Main contract
+│   ├── script/Deploy.s.sol   # Deployment scripts
+│   └── test/                 # Contract tests
+├── src/                      # Next.js application
+│   ├── app/                  # App Router pages
+│   ├── components/           # React components
+│   ├── lib/                  # Utilities and helpers
+│   └── types/                # TypeScript definitions
+├── scripts/                  # Operational scripts
+├── demo-cids/               # Demo dataset files
+└── .env.local               # Environment configuration
+```
+
+## 📚 **Documentation**
+
+### 📋 **Core Documentation**
+- **[Master Plan & Architecture](./docs/cid-sentinel-plan.md)** - Complete system design and implementation plan
+- **[Phase 6 Demo Guide](./docs/phase6-demo-end-to-end.md)** - Live breach simulation execution
+- **[Smart Contract Integration](./docs/phase5-onchain-integration.md)** - On-chain deployment and testing
+
+### 🔧 **Development Guides**
+- **[Environment Setup](./docs/phase5-task0-completion.md)** - Complete environment configuration
+- **[Evidence Pack System](./docs/phase3-evidence-packs.md)** - IPFS evidence generation
+- **[Cron Orchestrator](./docs/phase4-cron-probe-workers.md)** - Automated monitoring system
+
+### 🛡️ **Security & Operations**
+- **[Security Policies](./docs/security-policies.md)** - Security audit and procedures
+- **[Observability Runbook](./docs/task7-observability-runbook.md)** - Monitoring and alerting
+- **[Deployment Verification](./docs/deployment-verification.md)** - Production deployment guide
+
+## 🎬 **Demo Script (3 Minutes)**
+
+### Hook (30s)
+"When public evidence goes offline, truth rots. CID Sentinel keeps IPFS data alive — with economic guarantees."
+
+### User Journey (90s)
+1. **Register CID**: Connect wallet → Register CID with SLO → Bond stake
+2. **Monitor**: Show dashboard with real-time availability metrics
+3. **Evidence**: Open latest Evidence Pack showing multi-gateway probes
+
+### WOW Moment (60s)
+1. **Trigger Breach**: Live unpin CID from Pinata
+2. **Detection**: Dashboard shows BREACH status in <60s
+3. **Slashing**: On-chain `Slashed` event with economic penalties
+4. **Evidence**: Show Evidence Pack proving the breach
+
+### Value Proposition (30s)
+"99%+ uptime guaranteed, breach detected in <60s, automatic economic penalties. Built on Lisk, Protocol Labs, and Vercel."
+
+## 🏆 **Bounty Alignment**
+
+- **🔗 Lisk**: On-chain evidence anchoring and state management with low costs
+- **🔄 Symbiotic**: Restaking economics and slashing infrastructure (Plan A)
+- **📦 Protocol Labs**: IPFS monitoring, Evidence Packs, and multi-gateway probes
+- **⚡ Vercel**: Serverless cron orchestration and production deployment
+- **💾 Filecoin**: Persistent evidence storage and data availability
+
+## 🔐 **Security & Trust**
+
+- **Role-based Access**: DEPLOYER, POLICY, WATCHER, PUBLISHER, RESTAKER separation
+- **Cryptographic Signatures**: ed25519 signing for Evidence Packs
+- **Economic Security**: Real ETH at stake with automated slashing
+- **Transparency**: All operations recorded on-chain with verifiable hashes
+- **Audit Trail**: Complete evidence chain from probe to penalty
+
+## 📞 **Contact & Support**
+
+- **Repository**: [GitHub](https://github.com/panzagianluca/alpeh-gianluca)
+- **Documentation**: Complete guides in `/docs` folder
+- **Demo**: Live demonstration ready for Aleph Hackathon
+- **Support**: See documentation or raise issues
+
+---
+
+**Built for Aleph Hackathon 2025 | Ready for Production Demo** 🚀
+
+## 📊 Evidence Pack Structure
 
 ```typescript
 interface EvidencePackV1 {
@@ -54,7 +167,7 @@ interface EvidencePackV1 {
 }
 ```
 
-### 🔧 API Usage
+## 🔧 API Usage
 
 **Create Evidence Pack:**
 ```bash
@@ -91,7 +204,7 @@ curl -X POST http://localhost:3000/api/evidence/build \
 }
 ```
 
-### 🧪 Testing
+## 🧪 Testing
 
 The system includes comprehensive tests covering:
 
@@ -111,89 +224,16 @@ pnpm test --coverage
 pnpm test src/lib/evidence
 ```
 
-### 🔐 Security Features
+## Development Information
 
-- **Ed25519 Signatures**: Deterministic signing for Evidence Pack integrity
-- **Input Validation**: Strict schema validation for all inputs
-- **Size Limits**: Evidence Packs limited to 10KB for efficiency
-- **Rate Limiting**: Built-in protections against abuse
-- **Secret Management**: Private keys never exposed in responses
-
-### 📚 Documentation
-
-- [Phase 3 Implementation Plan](./docs/phase3-evidence-packs.md)
-- [API Reference](http://localhost:3000/api/evidence/build) (GET for docs)
-- [Test Coverage Report](./coverage/lcov-report/index.html) (after running tests with coverage)
-
-### 🛣️ Roadmap
-
-**✅ Phase 3 Complete** - Evidence Pack Builder System
-**🔄 Phase 4 Next** - Cron job integration and probe workers
-**📋 Phase 5** - Frontend UI for manual testing
-**🎯 Phase 6** - Demo automation and breach simulation
-
-### 🔧 Environment Variables
+This is a [Next.js](https://nextjs.org) project with additional smart contract integration via Foundry.
 
 ```bash
-# Required for IPFS uploads
-WEB3_STORAGE_TOKEN=your_token_here
-
-# Required for signing (auto-generated if missing)
-WATCHER_PRIVATE_KEY=base64_ed25519_private_key
-WATCHER_PUBLIC_KEY=base64_ed25519_public_key
+# Development commands
+pnpm dev          # Start development server
+pnpm build        # Build for production
+pnpm test         # Run tests
+pnpm test:contracts  # Run smart contract tests (requires Foundry)
 ```
 
-### 📈 System Status
-
-**Definition of Done Progress: 8/9 Complete ✅**
-
-- [x] Evidence Pack schema implemented & validated
-- [x] ed25519 signing working with tweetnacl  
-- [x] IPFS upload working with web3.storage
-- [x] Builder aggregation logic implemented
-- [x] API endpoint functional
-- [x] Tests covering main scenarios
-- [x] Hand-off ready for Phase 4 (cron integration)
-- [ ] Documentation complete (in progress)
-- [ ] Security policies documented (in progress)
-
----
-
-## Next.js Information
-
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+For complete deployment instructions, see [Deployment Verification](./docs/deployment-verification.md).

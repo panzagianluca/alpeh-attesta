@@ -1,0 +1,33 @@
+{
+  "name": "CID Sentinel Demo Dataset",
+  "version": "1.0.0",
+  "description": "Demo files for Aleph Hackathon - IPFS availability monitoring",
+  "created": "2025-08-30T00:00:00Z",
+  "type": "evidence-demo",
+  "hackathon": "Aleph 2025",
+  "files": {
+    "total": 5,
+    "types": ["info", "data", "visual", "manifest", "victim"],
+    "purpose": "Demonstrate real-time breach detection and slashing"
+  },
+  "slo_config": {
+    "k": 2,
+    "n": 3,
+    "timeout_ms": 2000,
+    "window_min": 5,
+    "breach_threshold": 0.66
+  },
+  "demo_scenario": {
+    "stable_files": 4,
+    "victim_file": 1,
+    "expected_breach_time": "2-3 monitoring cycles",
+    "slashing_trigger": "consecutive BREACH status"
+  },
+  "tech_stack": {
+    "blockchain": "Lisk Sepolia",
+    "storage": "IPFS via Pinata",
+    "monitoring": "Vercel Cron",
+    "evidence": "JSON Evidence Packs",
+    "slashing": "Smart Contract"
+  }
+}

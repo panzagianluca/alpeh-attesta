@@ -6,6 +6,8 @@
  */
 
 import { createPublicClient, http, parseAbiItem, type Address } from 'viem';
+import * as fs from 'fs';
+import * as path from 'path';
 
 export interface ActiveCID {
   cid: string;
@@ -94,10 +96,16 @@ export class OnChainCIDManager implements CIDManager {
     try {
       console.log('🔍 Refreshing CID list from on-chain events...');
       
+      // Use proper ABI from contract
+      const contractAbi = JSON.parse(
+        fs.readFileSync(path.join(process.cwd(), 'contracts/out/EvidenceRegistry.sol/EvidenceRegistry.json'), 'utf8')
+      ).abi;
+      
       // Fetch CIDRegistered events
       const logs = await this.client.getLogs({
         address: this.contractAddress,
-        event: parseAbiItem('event CIDRegistered(bytes32 indexed cid, address indexed publisher, tuple(uint8 k, uint8 n, uint16 timeout, uint16 window) slo, bool slashing)'),
+        abi: contractAbi,
+        eventName: 'CIDRegistered',
         fromBlock: 'earliest',
         toBlock: 'latest'
       });

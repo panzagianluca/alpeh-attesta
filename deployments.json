@@ -1,0 +1,47 @@
+{
+  "networks": {
+    "lisk-testnet": {
+      "chainId": 4202,
+      "name": "Lisk Sepolia Testnet",
+      "rpcUrl": "https://rpc.sepolia-api.lisk.com",
+      "explorer": "https://sepolia-blockscout.lisk.com",
+      "contracts": {
+        "EvidenceRegistry": {
+          "address": "0x4fCD15b71119B2F1c18944F9D1e6Ac8D5eE0024a",
+          "deployTx": "0xa54cccdc3a4b646b09236109e21c3094ab1a01ee3fd3c3a781c0941f729a4a74",
+          "deployBlock": 25623774,
+          "deployer": "0xD451CBD99F94Bca8aB933aA7daed32Db9B6bF38A",
+          "verified": false,
+          "deploymentTimestamp": 1725018000000,
+          "compiler": "0.8.24",
+          "evm": "cancun",
+          "optimizerRuns": 200,
+          "constructorArgs": [
+            "0x21cA08e625b3736467207F7ac3Bf2e34cd534694",
+            "0xeFF0FBCf3FB05F51098954eC34577e03D28af21C"
+          ]
+        }
+      },
+      "roles": {
+        "deployer": "0xD451CBD99F94Bca8aB933aA7daed32Db9B6bF38A",
+        "policy": "0x21cA08e625b3736467207F7ac3Bf2e34cd534694",
+        "watcher": "0xeFF0FBCf3FB05F51098954eC34577e03D28af21C",
+        "publisher": "0x59641DEe2A9C3f1E25dCcCd9ec608C4A4e0C47f3",
+        "restaker": "0xe6478CCb5c08278Ba91608b57dbeAB0592eAa9C2"
+      },
+      "gasEstimates": {
+        "deploy": "~2,000,000",
+        "registerCID": "~150,000",
+        "reportPack": "~100,000",
+        "bondStake": "~80,000",
+        "slash": "~120,000",
+        "roleAssignment": "~50,000"
+      }
+    }
+  },
+  "metadata": {
+    "version": "1.0.0",
+    "lastUpdated": "2025-08-30T15:00:00.000Z",
+    "environment": "testnet"
+  }
+}

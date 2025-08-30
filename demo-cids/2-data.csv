@@ -1,0 +1,6 @@
+cid_id,name,status,last_check,availability_score,gateway_count
+CID-001,Wikipedia_Archive,OK,2025-08-30T10:00:00Z,99.2,3
+CID-002,Research_Dataset,DEGRADED,2025-08-30T10:01:00Z,85.1,2
+CID-003,Legal_Documents,OK,2025-08-30T10:02:00Z,98.7,3
+CID-004,Public_Records,OK,2025-08-30T10:03:00Z,97.3,3
+CID-005,Demo_Victim,BREACH,2025-08-30T10:04:00Z,12.5,0

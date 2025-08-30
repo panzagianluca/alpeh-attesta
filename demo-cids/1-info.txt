@@ -1,0 +1,14 @@
+CID SENTINEL - Data Availability Monitoring
+
+What: SLA-backed IPFS monitoring with economic guarantees
+How: Real-time probes + Evidence packs + Smart contract slashing
+Why: Public data disappears daily - we need economic incentives
+
+Built on:
+- Lisk (smart contracts)
+- IPFS (evidence storage) 
+- Symbiotic (restaking)
+- Vercel (monitoring)
+
+Demo: Live breach detection with automatic slashing
+Contact: CID Sentinel Team

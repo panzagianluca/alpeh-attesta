@@ -1,0 +1,30 @@
+🚨 CID SENTINEL VICTIM FILE 🚨
+
+This file will be UNPINNED from Pinata during the live demo
+to simulate a real-world data availability breach.
+
+PURPOSE: Demonstrate controlled breach scenario
+STATUS: Will change from OK → DEGRADED → BREACH  
+TIMING: 2-3 monitoring cycles (2-3 minutes)
+EVIDENCE: Failed probes will be captured in Evidence Packs
+
+DEMO FLOW:
+1. Initial state: All 5 CIDs showing OK status
+2. Execute unpin command during video recording
+3. Watch real-time status change in dashboard  
+4. Show evidence pack with failed probe data
+5. Trigger automatic slashing transaction
+
+ECONOMIC IMPACT:
+- Stake bonded to this CID will be slashed
+- Demonstrates economic consequences of SLA breaches
+- Proves the system works automatically
+
+This breach is INTENTIONAL for demonstration purposes.
+In production, this would represent a real storage provider failure.
+
+File size: Small for quick demo
+Unpinning method: Pinata API call
+Recovery: Re-pin after demo (optional)
+
+🎬 Ready for the WOW moment! 🎬

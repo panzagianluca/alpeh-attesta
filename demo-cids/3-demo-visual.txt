@@ -1,0 +1,23 @@
+   ╔══════════════════════════════════╗
+   ║          CID SENTINEL            ║
+   ║     Data Availability Monitor    ║
+   ╠══════════════════════════════════╣
+   ║                                  ║
+   ║  📊 Real-time Monitoring         ║
+   ║  🔗 IPFS Integration             ║
+   ║  ⚖️  Economic Guarantees          ║
+   ║  🚨 Breach Detection             ║
+   ║  💰 Automatic Slashing           ║
+   ║                                  ║
+   ║  Status: [OK] [DEGRADED] [BREACH]║
+   ║                                  ║
+   ╚══════════════════════════════════╝
+
+Gateway Status:
+├── ipfs.io ............ ✅ 420ms
+├── pinata.cloud ....... ✅ 380ms  
+├── dweb.link .......... ❌ timeout
+└── cloudflare-ipfs .... ✅ 520ms
+
+Availability: 75% (3/4) - DEGRADED
+SLO Threshold: 66% (2/3) - BREACH if <66%
