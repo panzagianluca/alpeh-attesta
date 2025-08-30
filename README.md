@@ -11,7 +11,7 @@ Attesta revolutionizes IPFS reliability by introducing verifiable Service Level 
 **✨ Full production system deployed with real economic incentives and automated monitoring**
 
 ### 🚀 **Live Demo Links:**
-- **🌐 Live Application:** [https://attesta-seven.vercel.app/](https://attesta-seven.vercel.app/)
+- **🌐 Live Application:** [https://alpeh-gianluca.vercel.app/](https://alpeh-gianluca.vercel.app/)
 - **📋 Smart Contract:** [`0x4fCD15b71119B2F1c18944F9D1e6Ac8D5eE0024a`](https://sepolia-blockscout.lisk.com/address/0x4fCD15b71119B2F1c18944F9D1e6Ac8D5eE0024a) (Lisk Sepolia)
 - **📺 Demo Video:** [3-minute pitch video] *(link will be added before submission)*
 - **💻 Repository:** [https://github.com/panzagianluca/alpeh-attesta](https://github.com/panzagianluca/alpeh-attesta)
@@ -32,7 +32,7 @@ Attesta ensures verifiable availability of critical IPFS content through Service
 
 ### � **Final Demo Results:**
 - **✅ Smart Contract Deployed:** [`0x4fCD15b71119B2F1c18944F9D1e6Ac8D5eE0024a`](https://sepolia-blockscout.lisk.com/address/0x4fCD15b71119B2F1c18944F9D1e6Ac8D5eE0024a)
-- **✅ Live Frontend:** [https://attesta-seven.vercel.app/](https://attesta-seven.vercel.app/)
+- **✅ Live Frontend:** [https://alpeh-gianluca.vercel.app/](https://alpeh-gianluca.vercel.app/)
 - **✅ Real CID Monitoring:** 10+ registered CIDs with live status tracking
 - **✅ Manual Probe System:** Instant verification across 5 global regions
 - **✅ Dashboard Integration:** Real-time status updates and evidence display
@@ -57,7 +57,7 @@ Attesta ensures verifiable availability of critical IPFS content through Service
 ## 🚀 **Quick Start**
 
 ### **Try the Live Demo**
-1. Visit [https://attesta-seven.vercel.app/](https://attesta-seven.vercel.app/)
+1. Visit [https://alpeh-gianluca.vercel.app/](https://alpeh-gianluca.vercel.app/)
 2. Connect your wallet (Lisk Sepolia testnet)
 3. Register a CID with SLO requirements
 4. Monitor real-time availability status
