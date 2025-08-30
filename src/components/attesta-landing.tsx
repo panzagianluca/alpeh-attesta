@@ -21,7 +21,6 @@ import {
   AlertTriangle, 
   BarChart3, 
   Globe, 
-  Lock, 
   Users, 
   Building, 
   Code, 
@@ -322,37 +321,18 @@ export function AttestLanding() {
         </div>
       </section>
 
-      {/* Integrations & Security */}
+      {/* Integrations */}
       <section className="py-20 px-6 bg-[#0A0A0A]/50">
         <div className="max-w-[896px] mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <Lock className="h-12 w-12 text-[#38BDF8] mb-6" />
-              <h2 className="text-4xl font-bold mb-6">Enterprise Security</h2>
-              <p className="text-xl text-[#EDEDED]/70 mb-8 leading-relaxed">
-                Built with security-first principles. Smart contracts are audited, 
-                validator networks are decentralized, and all operations are transparent on-chain.
-              </p>
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <CheckCircle className="h-5 w-5 text-[#38BDF8]" />
-                  <span>Smart contract audited by top security firms</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <CheckCircle className="h-5 w-5 text-[#38BDF8]" />
-                  <span>Decentralized validator network</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <CheckCircle className="h-5 w-5 text-[#38BDF8]" />
-                  <span>Transparent on-chain operations</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <CheckCircle className="h-5 w-5 text-[#38BDF8]" />
-                  <span>Economic slashing for bad actors</span>
-                </div>
-              </div>
-            </div>
-            
+          <div className="text-center mb-12">
+            <Cpu className="h-12 w-12 text-[#38BDF8] mx-auto mb-6" />
+            <h2 className="text-4xl font-bold mb-6">Developer Integrations</h2>
+            <p className="text-xl text-[#EDEDED]/70 leading-relaxed">
+              Simple APIs and SDKs to integrate IPFS monitoring into your applications.
+            </p>
+          </div>
+          
+          <div className="grid lg:grid-cols-2 gap-6 max-w-4xl mx-auto">
             <div className="space-y-6">
               <Card className="bg-[#0A0A0A] border-[#EDEDED]/10">
                 <CardHeader>
@@ -371,7 +351,9 @@ export function AttestLanding() {
                   </div>
                 </CardContent>
               </Card>
-              
+            </div>
+            
+            <div className="space-y-6">
               <Card className="bg-[#0A0A0A] border-[#EDEDED]/10">
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
