@@ -173,7 +173,7 @@ export function RegisterCIDPage() {
     <div className="min-h-screen bg-[#0A0A0A] text-[#EDEDED] relative pb-24 pt-24">
       {/* Header */}
       <div className="sticky top-24 z-40 bg-[#0A0A0A]/95 backdrop-blur-md border-b border-[#EDEDED]/10">
-        <div className="max-w-[896px] mx-auto px-6 py-4">
+        <div className="max-w-[896px] mx-auto py-4">
           <div className="flex items-center space-x-4">
             <Link href="/dashboard">
               <Button variant="ghost" size="sm" className="text-[#EDEDED]/70 hover:text-[#EDEDED] hover:bg-[#EDEDED]/10">

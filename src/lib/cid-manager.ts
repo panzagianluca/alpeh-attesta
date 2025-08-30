@@ -122,7 +122,7 @@ export class OnChainCIDManager implements CIDManager {
             address: this.contractAddress,
             abi: [
               {
-                name: 'getCID',
+                name: 'cids',
                 type: 'function',
                 stateMutability: 'view',
                 inputs: [{ name: 'cid', type: 'bytes32' }],
@@ -138,7 +138,7 @@ export class OnChainCIDManager implements CIDManager {
                 ]
               }
             ],
-            functionName: 'getCID',
+            functionName: 'cids',
             args: [cidDigest]
           });
 

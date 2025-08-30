@@ -32,7 +32,8 @@ import {
   CheckCircle,
   Clock,
   Loader2,
-  RefreshCw
+  RefreshCw,
+  Info
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRegisteredCIDs } from '@/services/cid-service'
@@ -168,7 +169,7 @@ export function DashboardPage() {
     <div className="min-h-screen bg-[#0A0A0A] text-[#EDEDED] relative pb-24 pt-24">
       {/* Header */}
       <div className="sticky top-24 z-40 bg-[#0A0A0A]/95 backdrop-blur-md border-b border-[#EDEDED]/10">
-        <div className="max-w-[896px] mx-auto px-6 py-4">
+        <div className="max-w-[896px] mx-auto py-4">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold">Dashboard</h1>
@@ -210,7 +211,7 @@ export function DashboardPage() {
       </div>
 
       {/* Controls */}
-      <div className="max-w-[896px] mx-auto px-6 py-6">
+      <div className="max-w-[896px] mx-auto py-6">
         {/* Network Switcher - Show if wrong network */}
         <div className="mb-6">
           <NetworkSwitcher />
@@ -305,85 +306,87 @@ export function DashboardPage() {
                 </Badge>
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <Table>
+            <CardContent className="p-0">
+              <Table className="w-full table-fixed">
                 <TableHeader>
                   <TableRow className="border-[#EDEDED]/10">
-                    <TableHead className="text-[#EDEDED]/60">CID</TableHead>
-                    <TableHead className="text-[#EDEDED]/60">Status</TableHead>
-                    <TableHead className="text-[#EDEDED]/60">Last Pack</TableHead>
-                    <TableHead className="text-[#EDEDED]/60">Stake Total</TableHead>
-                    <TableHead className="text-[#EDEDED]/60">SLO</TableHead>
-                    <TableHead className="text-[#EDEDED]/60">Actions</TableHead>
+                    <TableHead className="text-[#EDEDED]/60 w-[25%] p-2">CID</TableHead>
+                    <TableHead className="text-[#EDEDED]/60 w-[12%] p-2">Status</TableHead>
+                    <TableHead className="text-[#EDEDED]/60 w-[15%] p-2">Last Pack</TableHead>
+                    <TableHead className="text-[#EDEDED]/60 w-[18%] p-2">
+                      <div className="flex items-center gap-1 group relative">
+                        Stake
+                        <Info className="h-3 w-3 cursor-help" />
+                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 p-2 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
+                          <div className="font-semibold mb-1">Bond Stake (Economic Security)</div>
+                          <div>Total ETH staked by node operators to guarantee evidence integrity. Higher stakes = stronger commitment to data preservation.</div>
+                          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                        </div>
+                      </div>
+                    </TableHead>
+                    <TableHead className="text-[#EDEDED]/60 w-[15%] p-2">SLO</TableHead>
+                    <TableHead className="text-[#EDEDED]/60 w-[15%] p-2">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredCIDs.map((cidData, idx) => (
                     <TableRow key={idx} className="border-[#EDEDED]/10 hover:bg-[#EDEDED]/5">
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <code className="text-sm bg-[#EDEDED]/10 px-2 py-1 rounded">
-                            {cidData.cid.slice(0, 12)}...
+                      <TableCell className="p-2">
+                        <div className="flex items-center space-x-1">
+                          <code className="text-xs bg-[#EDEDED]/10 px-1 py-0.5 rounded">
+                            {cidData.cid.slice(0, 8)}...
                           </code>
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => copyToClipboard(cidData.cid)}
-                            className="h-6 w-6 p-0 hover:bg-[#EDEDED]/10"
+                            className="h-5 w-5 p-0 hover:bg-[#EDEDED]/10"
                           >
-                            <Copy className="h-3 w-3" />
+                            <Copy className="h-2.5 w-2.5" />
                           </Button>
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => openInGateway(cidData.cid)}
-                            className="h-6 w-6 p-0 hover:bg-[#EDEDED]/10"
+                            className="h-5 w-5 p-0 hover:bg-[#EDEDED]/10"
                           >
-                            <ExternalLink className="h-3 w-3" />
+                            <ExternalLink className="h-2.5 w-2.5" />
                           </Button>
                         </div>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="p-2">
                         {getStatusBadge(cidData.status)}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="p-2">
                         <a 
                           href={`https://ipfs.io/ipfs/${cidData.lastPackCID}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-[#38BDF8] hover:underline text-sm"
+                          className="text-[#38BDF8] hover:underline text-xs"
                         >
-                          {cidData.lastPackCID.slice(0, 12)}...
+                          {cidData.lastPackCID.slice(0, 8)}...
                         </a>
                       </TableCell>
-                      <TableCell className="font-mono text-sm">
-                        {cidData.totalStake > 0 ? `${formatEther(cidData.totalStake)} ETH` : '0 ETH'}
+                      <TableCell className="font-mono text-xs p-2">
+                        {cidData.totalStake > 0 ? `${formatEther(cidData.totalStake).slice(0, 6)} ETH` : '0 ETH'}
                       </TableCell>
-                      <TableCell>
-                        <div className="text-xs text-[#EDEDED]/70">
-                          {cidData.slo.k}/{cidData.slo.n} • {cidData.slo.timeoutMs}ms • {cidData.slo.windowMin}m
+                      <TableCell className="p-2">
+                        <div className="text-xs text-[#EDEDED]/70 whitespace-nowrap">
+                          {cidData.slo?.k || 0}/{cidData.slo?.n || 0} • {cidData.slo?.timeoutMs || 0}ms
                         </div>
                       </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
+                      <TableCell className="p-2">
+                        <div className="flex items-center space-x-1">
                           <Link href={`/cid/${cidData.cid}`}>
                             <Button 
                               variant="outline" 
                               size="sm"
-                              className="border-[#38BDF8] text-[#38BDF8] hover:bg-[#38BDF8]/10"
+                              className="border-[#38BDF8] text-[#38BDF8] hover:bg-[#38BDF8]/10 text-xs px-2 py-1 h-6"
                             >
-                              <Eye className="w-3 h-3 mr-1" />
+                              <Eye className="w-2.5 h-2.5 mr-1" />
                               View
                             </Button>
                           </Link>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            className="border-[#EDEDED]/20 text-[#EDEDED]/70 hover:bg-[#EDEDED]/10"
-                          >
-                            <DollarSign className="w-3 h-3 mr-1" />
-                            Bond
-                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>

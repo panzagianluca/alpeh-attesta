@@ -27,8 +27,8 @@ export const liskSepolia = {
   testnet: true,
 } as const
 
-// Project ID for WalletConnect (you'll need to get this from WalletConnect)
-const projectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || 'your-project-id'
+// Project ID for WalletConnect
+const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'a9a91102daad7a2bf42889d1b8ad8d00'
 
 export const config = createConfig({
   chains: [liskSepolia, mainnet, sepolia, hardhat],

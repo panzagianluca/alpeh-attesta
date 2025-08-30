@@ -81,7 +81,7 @@ export function AttestLanding() {
       description: "MIT licensed, fully auditable codebase",
       className: "col-span-2",
       Icon: Code,
-      href: "#",
+      href: "https://github.com/panzagianluca/alpeh-attesta",
       cta: "View code",
     },
   ];
@@ -400,26 +400,21 @@ export function AttestLanding() {
             or join our community of validators and developers.
           </p>
           
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
-            <Card className="bg-[#0A0A0A] border-[#EDEDED]/10">
+          <div className="flex justify-center mb-8">
+            <Card className="bg-[#0A0A0A] border-[#EDEDED]/10 max-w-md">
               <CardContent className="p-6 text-center">
                 <Github className="h-8 w-8 text-[#38BDF8] mx-auto mb-4" />
                 <h3 className="text-lg font-semibold mb-2">Source Code</h3>
                 <p className="text-[#EDEDED]/60 mb-4">MIT licensed, fully auditable</p>
-                <Button variant="outline" className="border-[#38BDF8] text-[#38BDF8]">
-                  View on GitHub
-                </Button>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-[#0A0A0A] border-[#EDEDED]/10">
-              <CardContent className="p-6 text-center">
-                <FileText className="h-8 w-8 text-[#38BDF8] mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Documentation</h3>
-                <p className="text-[#EDEDED]/60 mb-4">Comprehensive guides and API docs</p>
-                <Button variant="outline" className="border-[#38BDF8] text-[#38BDF8]">
-                  Read the Docs
-                </Button>
+                <a 
+                  href="https://github.com/panzagianluca/alpeh-attesta"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button variant="outline" className="border-[#38BDF8] text-[#38BDF8]">
+                    View on GitHub
+                  </Button>
+                </a>
               </CardContent>
             </Card>
           </div>
@@ -500,21 +495,9 @@ export function AttestLanding() {
             their IPFS content remains available when it matters most.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-            <a href="/dashboard">
-              <ShimmerButton className="bg-[#38BDF8] text-[#0A0A0A] px-8 py-4 text-lg font-medium">
-                Start Free Trial
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </ShimmerButton>
-            </a>
-            <Button variant="outline" className="border-[#EDEDED]/20 text-[#EDEDED] hover:bg-[#EDEDED]/10 px-8 py-4 text-lg">
-              Talk to Sales
-            </Button>
+          <div className="flex justify-center items-center mb-8">
+            <HeroCTAButton />
           </div>
-          
-          <p className="text-[#EDEDED]/50 text-sm">
-            Free 14-day trial • No credit card required • Cancel anytime
-          </p>
         </div>
       </section>
       
@@ -523,14 +506,26 @@ export function AttestLanding() {
       {/* Footer */}
       <footer className="py-12 px-6">
         <div className="max-w-[896px] mx-auto text-center">
-          <p className="text-[#EDEDED]/50 mb-4">
-            © 2024 Attesta. Built with ❤️ for the decentralized web.
+          <p className="text-[#EDEDED]/50 mb-2">
+            Built for Aleph Hackathon - made by Gianluca Panza
           </p>
-          <div className="flex justify-center space-x-6 text-[#EDEDED]/50">
-            <a href="#" className="hover:text-[#38BDF8] transition-colors">Privacy</a>
-            <a href="#" className="hover:text-[#38BDF8] transition-colors">Terms</a>
-            <a href="#" className="hover:text-[#38BDF8] transition-colors">Support</a>
-            <a href="#" className="hover:text-[#38BDF8] transition-colors">Status</a>
+          <div className="flex justify-center space-x-6 text-[#EDEDED]/50 mb-4">
+            <a 
+              href="https://github.com/panzagianluca" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-[#38BDF8] transition-colors"
+            >
+              GitHub
+            </a>
+            <a 
+              href="https://x.com/gianlucapanz" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-[#38BDF8] transition-colors"
+            >
+              Twitter
+            </a>
           </div>
         </div>
       </footer>

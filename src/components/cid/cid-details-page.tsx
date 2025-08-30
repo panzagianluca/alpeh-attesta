@@ -95,12 +95,24 @@ export function CIDDetailsPage({ cid }: CIDDetailsPageProps) {
   } = useReadContract({
     address: contractAddress as `0x${string}`,
     abi: EvidenceRegistryABI,
-    functionName: 'getCID',
+    functionName: 'cids',
     args: [cidDigest],
     query: {
       enabled: !!contractAddress && contractAddress !== '0x...'
     }
   })
+
+  // Debug logging to understand data structure
+  useEffect(() => {
+    if (cidData) {
+      console.log('CID Data from contract:', cidData)
+      console.log('CID Data type:', typeof cidData)
+      console.log('CID Data keys:', Object.keys(cidData || {}))
+    }
+    if (cidError) {
+      console.error('CID Error:', cidError)
+    }
+  }, [cidData, cidError])
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
@@ -251,11 +263,15 @@ export function CIDDetailsPage({ cid }: CIDDetailsPageProps) {
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-[#EDEDED]/60">Total Stake</span>
-                      <span className="font-mono">{(cidData as CIDData).totalStake.toString()} wei</span>
+                      <span className="font-mono">
+                        {(cidData as CIDData)?.totalStake?.toString() || '0'} wei
+                      </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-[#EDEDED]/60">Consecutive Fails</span>
-                      <span className="font-mono">{(cidData as CIDData).consecutiveFails}</span>
+                      <span className="font-mono">
+                        {(cidData as CIDData)?.consecutiveFails?.toString() || '0'}
+                      </span>
                     </div>
                   </>
                 ) : (
@@ -283,28 +299,30 @@ export function CIDDetailsPage({ cid }: CIDDetailsPageProps) {
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <div className="text-sm text-[#EDEDED]/60">Success Threshold</div>
-                        <div className="text-lg font-mono">{(cidData as CIDData).slo.k}/{(cidData as CIDData).slo.n}</div>
+                        <div className="text-lg font-mono">
+                          {(cidData as CIDData)?.slo?.k || 0}/{(cidData as CIDData)?.slo?.n || 0}
+                        </div>
                       </div>
                       <div>
                         <div className="text-sm text-[#EDEDED]/60">Timeout</div>
-                        <div className="text-lg font-mono">{(cidData as CIDData).slo.timeout}s</div>
+                        <div className="text-lg font-mono">{(cidData as CIDData)?.slo?.timeout || 0}s</div>
                       </div>
                       <div>
                         <div className="text-sm text-[#EDEDED]/60">Window</div>
-                        <div className="text-lg font-mono">{(cidData as CIDData).slo.window}m</div>
+                        <div className="text-lg font-mono">{(cidData as CIDData)?.slo?.window || 0}m</div>
                       </div>
                       <div>
                         <div className="text-sm text-[#EDEDED]/60">Slashing</div>
                         <div className="text-lg">
-                          {(cidData as CIDData).slashingEnabled ? '✅ Enabled' : '❌ Disabled'}
+                          {(cidData as CIDData)?.slashingEnabled ? '✅ Enabled' : '❌ Disabled'}
                         </div>
                       </div>
                     </div>
                     <Alert className="border-[#38BDF8]/20 bg-[#38BDF8]/5">
                       <Info className="h-4 w-4" />
                       <AlertDescription className="text-[#EDEDED]/80 text-sm">
-                        {(cidData as CIDData).slo.k} out of {(cidData as CIDData).slo.n} checks must succeed within {(cidData as CIDData).slo.timeout} seconds, 
-                        checked every {(cidData as CIDData).slo.window} minutes.
+                        {(cidData as CIDData)?.slo?.k || 0} out of {(cidData as CIDData)?.slo?.n || 0} checks must succeed within {(cidData as CIDData)?.slo?.timeout || 0} seconds, 
+                        checked every {(cidData as CIDData)?.slo?.window || 0} minutes.
                       </AlertDescription>
                     </Alert>
                   </>
