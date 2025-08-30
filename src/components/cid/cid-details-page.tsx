@@ -118,17 +118,32 @@ export function CIDDetailsPage({ cid }: CIDDetailsPageProps) {
     }
   })
 
+  // Parse contract data (returns array: [publisher, slo, totalStake, lastPackCIDDigest, lastBreachAt, consecutiveFails, slashingEnabled])
+  const parsedCidData = cidData && Array.isArray(cidData) ? {
+    publisher: (cidData as any[])[0] as string,
+    slo: {
+      k: ((cidData as any[])[1] as any[])[0] as number,
+      n: ((cidData as any[])[1] as any[])[1] as number, 
+      timeout: ((cidData as any[])[1] as any[])[2] as number,
+      window: ((cidData as any[])[1] as any[])[3] as number
+    },
+    totalStake: (cidData as any[])[2] as bigint,
+    lastPackCIDDigest: (cidData as any[])[3] as string,
+    lastBreachAt: (cidData as any[])[4] as bigint,
+    consecutiveFails: (cidData as any[])[5] as number,
+    slashingEnabled: (cidData as any[])[6] as boolean
+  } : null
+
   // Debug logging to understand data structure
   useEffect(() => {
     if (cidData) {
-      console.log('CID Data from contract:', cidData)
-      console.log('CID Data type:', typeof cidData)
-      console.log('CID Data keys:', Object.keys(cidData || {}))
+      console.log('Raw CID Data from contract:', cidData)
+      console.log('Parsed CID Data:', parsedCidData)
     }
     if (cidError) {
       console.error('CID Error:', cidError)
     }
-  }, [cidData, cidError])
+  }, [cidData, cidError, parsedCidData])
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
@@ -294,7 +309,7 @@ export function CIDDetailsPage({ cid }: CIDDetailsPageProps) {
                   <Loader2 className="h-4 w-4 animate-spin" />
                   <span className="text-[#EDEDED]/60">Loading...</span>
                 </div>
-              ) : cidData ? (
+              ) : parsedCidData ? (
                 <>
                   <div className="flex items-center justify-between">
                     <span className="text-[#EDEDED]/60">Current Status</span>
@@ -307,7 +322,7 @@ export function CIDDetailsPage({ cid }: CIDDetailsPageProps) {
                   <div className="flex items-center justify-between">
                     <span className="text-[#EDEDED]/60">Total Stake</span>
                     <span className="font-bold text-[#38BDF8]">
-                      {(cidData as CIDData)?.totalStake?.toString() || '0'} wei
+                      {parsedCidData.totalStake.toString()} wei
                     </span>
                   </div>
                 </>
@@ -326,30 +341,30 @@ export function CIDDetailsPage({ cid }: CIDDetailsPageProps) {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {cidData ? (
+              {parsedCidData ? (
                 <>
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div className="space-y-1">
                       <Label className="text-xs text-[#EDEDED]/60">Success Rate</Label>
                       <div className="text-lg font-mono">
-                        {(cidData as CIDData)?.slo?.k || 0}/{(cidData as CIDData)?.slo?.n || 0}
+                        {parsedCidData.slo.k}/{parsedCidData.slo.n}
                       </div>
                     </div>
                     <div className="space-y-1">
                       <Label className="text-xs text-[#EDEDED]/60">Timeout</Label>
-                      <div className="text-lg font-mono">{(cidData as CIDData)?.slo?.timeout || 0}s</div>
+                      <div className="text-lg font-mono">{parsedCidData.slo.timeout}ms</div>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div className="space-y-1">
                       <Label className="text-xs text-[#EDEDED]/60">Slashing</Label>
                       <div className="text-sm">
-                        {(cidData as CIDData)?.slashingEnabled ? '✅ Enabled' : '❌ Disabled'}
+                        {parsedCidData.slashingEnabled ? '✅ Enabled' : '❌ Disabled'}
                       </div>
                     </div>
                     <div className="space-y-1">
                       <Label className="text-xs text-[#EDEDED]/60">Window</Label>
-                      <div className="text-lg font-mono">{(cidData as CIDData)?.slo?.window || 0}m</div>
+                      <div className="text-lg font-mono">{parsedCidData.slo.window}m</div>
                     </div>
                   </div>
                 </>

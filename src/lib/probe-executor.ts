@@ -56,11 +56,11 @@ export class ProbeExecutor {
     }
 
     return [
-      'https://ipfs.io/ipfs',
-      'https://dweb.link/ipfs',
-      'https://cloudflare-ipfs.com/ipfs',
-      'https://gateway.pinata.cloud/ipfs',
-      'https://4everland.io/ipfs'
+      'https://ipfs.io/ipfs/',
+      'https://dweb.link/ipfs/',
+      'https://cloudflare-ipfs.com/ipfs/',
+      'https://gateway.pinata.cloud/ipfs/',
+      'https://4everland.io/ipfs/'
     ];
   }
 
@@ -90,7 +90,7 @@ export class ProbeExecutor {
    */
   private async executeSingleProbe(cid: string, gateway: string): Promise<ProbeResult> {
     const startTime = Date.now();
-    const url = `${gateway}/${cid}`;
+    const url = `${gateway}${cid}`;
 
     try {
       const controller = new AbortController();
