@@ -236,3 +236,8 @@ export function createCIDManager(): CIDManager {
 
   return new OnChainCIDManager(rpcUrl, contractAddress, liskSepoliaChain);
 }
+
+/**
+ * Legacy alias for backwards compatibility
+ */
+export const getCIDManager = createCIDManager;
