@@ -2,12 +2,6 @@
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
   "framework": "nextjs",
-  "crons": [
-    {
-      "path": "/api/cron/probe",
-      "schedule": "0 */6 * * *"
-    }
-  ],
   "functions": {
     "src/app/api/cron/probe/route.ts": {
       "maxDuration": 25
@@ -17,6 +11,9 @@
     },
     "src/app/api/health/route.ts": {
       "maxDuration": 10
+    },
+    "src/app/api/probe/manual/route.ts": {
+      "maxDuration": 25
     }
   },
   "env": {
