@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { saveCIDMapping } from '@/lib/cid-storage'
 import { 
   Upload, 
   AlertCircle, 
@@ -100,6 +101,10 @@ export function RegisterCIDPage() {
     if (!isConnected || !isValidCid) return
 
     try {
+      // Save CID mapping to localStorage BEFORE sending to contract
+      const cidHash = saveCIDMapping(cid)
+      console.log(`💾 Saved CID mapping: ${cidHash} -> ${cid}`)
+      
       // Calculate CID digest (keccak256 of the CID string)
       const cidDigest = keccak256(toBytes(cid))
       
@@ -115,7 +120,7 @@ export function RegisterCIDPage() {
         abi: EvidenceRegistryABI,
         functionName: 'registerCID',
         args: [
-          cidDigest,
+          cid,  // Pass the actual CID string, not the hash!
           {
             k: customSLO.k,
             n: customSLO.n,

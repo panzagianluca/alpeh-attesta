@@ -22,6 +22,7 @@ contract EvidenceRegistry is AccessControl, Pausable, ReentrancyGuard {
 
     struct CIDState {
         address publisher;          // dueño del CID
+        string  cidString;          // ACTUAL CID STRING!
         SLO     slo;                
         uint256 totalStake;         // stake acumulado (MVP local)
         bytes32 lastPackCIDDigest;  // keccak(packCIDv1)
@@ -43,7 +44,7 @@ contract EvidenceRegistry is AccessControl, Pausable, ReentrancyGuard {
     mapping(bytes32 => CIDState) public cids;
 
     // --- Eventos ---
-    event CIDRegistered(bytes32 indexed cid, address indexed publisher, SLO slo, bool slashing);
+    event CIDRegistered(bytes32 indexed cidHash, string cidString, address indexed publisher, SLO slo, bool slashing);
     event StakeBonded(bytes32 indexed cid, address indexed staker, uint256 amount);
     event EvidenceAnchored(bytes32 indexed cid, bytes32 indexed packCID, uint8 status, uint64 nonce);
     event BreachDetected(bytes32 indexed cid, uint64 at);
@@ -56,23 +57,36 @@ contract EvidenceRegistry is AccessControl, Pausable, ReentrancyGuard {
         _grantRole(WATCHER_ROLE, watcher);
     }
 
-    // --- Funciones núcleo ---
-    function registerCID(bytes32 cid, SLO calldata slo, bool slashingEnabled)
+        // --- Funciones núcleo ---
+    function registerCID(string memory cidString, SLO calldata slo, bool slashingEnabled)
         external
         whenNotPaused
     {
+        require(bytes(cidString).length > 0, "empty CID");
         require(slo.k > 0 && slo.k <= slo.n && slo.n <= 5, "bad SLO");
         require(slo.timeout > 0 && slo.timeout <= 60000, "bad timeout");
         require(slo.window > 0 && slo.window <= 1440, "bad window");
 
-        CIDState storage s = cids[cid];
+        bytes32 cidHash = keccak256(bytes(cidString));
+        CIDState storage s = cids[cidHash];
         require(s.publisher == address(0), "exists");
 
         s.publisher = msg.sender;
+        s.cidString = cidString;  // STORE THE ACTUAL CID STRING!
         s.slo = slo;
         s.slashingEnabled = slashingEnabled;
 
-        emit CIDRegistered(cid, msg.sender, slo, slashingEnabled);
+        emit CIDRegistered(cidHash, cidString, msg.sender, slo, slashingEnabled);
+    }
+
+    /// @notice Get the original CID string from hash
+    function getCIDString(bytes32 cidHash) external view returns (string memory) {
+        return cids[cidHash].cidString;
+    }
+
+    /// @notice Get CID hash from string
+    function getCIDHash(string calldata cidString) external pure returns (bytes32) {
+        return keccak256(bytes(cidString));
     }
 
     /// @notice MVP: stake nativo (ETH-like) para demo; puede migrar a Symbiotic en Plan A.

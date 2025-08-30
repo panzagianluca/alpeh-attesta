@@ -233,9 +233,9 @@
     "name": "registerCID",
     "inputs": [
       {
-        "name": "cid",
-        "type": "bytes32",
-        "internalType": "bytes32"
+        "name": "cidString",
+        "type": "string",
+        "internalType": "string"
       },
       {
         "name": "slo",
@@ -417,10 +417,16 @@
     "name": "CIDRegistered",
     "inputs": [
       {
-        "name": "cid",
+        "name": "cidHash",
         "type": "bytes32",
         "indexed": true,
         "internalType": "bytes32"
+      },
+      {
+        "name": "cidString",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
       },
       {
         "name": "publisher",

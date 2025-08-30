@@ -9,6 +9,7 @@ import { createPublicClient, http, type Address } from 'viem';
 import * as fs from 'fs';
 import * as path from 'path';
 import evidenceRegistryAbi from '../contracts/EvidenceRegistry.abi.json';
+import { getCIDFromHash, initializeKnownCIDs } from './cid-mapping';
 
 export interface ActiveCID {
   cid: string;
@@ -75,12 +76,17 @@ export class OnChainCIDManager implements CIDManager {
   private contractAddress: Address;
   private cachedCIDs: ActiveCID[] = [];
 
-  constructor(rpcUrl: string, contractAddress: Address, chainConfig: any) {
-    this.client = createPublicClient({
-      chain: chainConfig,
-      transport: http(rpcUrl)
-    });
+  constructor(rpcUrl: string, contractAddress: Address, chain: any) {
     this.contractAddress = contractAddress;
+    this.chain = chain;
+    
+    // Initialize known CID mappings
+    initializeKnownCIDs();
+
+    this.client = createPublicClient({
+      chain,
+      transport: http(rpcUrl),
+    });
   }
 
   async getActiveCIDs(): Promise<ActiveCID[]> {
@@ -135,27 +141,56 @@ export class OnChainCIDManager implements CIDManager {
             continue;
           }
 
-          // Extract actual CID from transaction data
-          let realCID = `Unknown_${cidDigest.slice(2, 10)}`
+          // Extract actual CID from mapping or transaction data
+          let realCID = getCIDFromHash(cidDigest)
           
-          try {
-            // Get the transaction to extract the real CID
-            const tx = await this.client.getTransaction({ hash: log.transactionHash });
+          if (!realCID) {
+            // Fallback to transaction data extraction if not in mapping
+            realCID = `Unknown_${cidDigest.slice(2, 10)}`
             
-            if (tx.input && tx.input.length > 10) {
-              // Look for CID pattern in hex
-              const matches = tx.input.match(/516d[0-9a-f]+/gi)
-              if (matches && matches.length > 0) {
-                const hexCID = matches[0]
-                const extractedCID = Buffer.from(hexCID, 'hex').toString('utf8')
+            try {
+              // Get the transaction to extract the real CID
+              const tx = await this.client.getTransaction({ hash: log.transactionHash });
+              
+              if (tx.input && tx.input.length > 10) {
+                // Skip the function selector (first 4 bytes = 8 hex chars)
+                const inputData = tx.input.slice(10)
                 
-                if (extractedCID.startsWith('Qm') && extractedCID.length >= 40) {
-                  realCID = extractedCID
+                // Look for common CID patterns in different formats
+                const patterns = [
+                  /Qm[a-zA-Z0-9]{44}/g,  // CIDv0
+                  /b[a-z2-7]{58}/g,      // CIDv1 base32
+                  /z[a-zA-Z0-9]+/g       // CIDv1 base58btc
+                ]
+                
+                // Convert hex to string and search for CID patterns
+                let searchString = ''
+                try {
+                  // Try to decode as UTF-8
+                  searchString = Buffer.from(inputData, 'hex').toString('utf8')
+                } catch {
+                  // If UTF-8 fails, use the hex string directly
+                  searchString = inputData
+                }
+                
+                for (const pattern of patterns) {
+                  const matches = searchString.match(pattern)
+                  if (matches && matches.length > 0) {
+                    const candidateCID = matches[0]
+                    // Validate the CID format
+                    if (candidateCID.length >= 40 && candidateCID.length <= 100) {
+                      realCID = candidateCID
+                      console.log(`✅ Extracted CID: ${realCID} from tx ${log.transactionHash}`)
+                      break
+                    }
+                  }
                 }
               }
+            } catch (cidError) {
+              console.warn(`Could not extract CID from tx ${log.transactionHash}:`, cidError)
             }
-          } catch (cidError) {
-            console.warn(`Could not extract CID from tx ${log.transactionHash}:`, cidError)
+          } else {
+            console.log(`✅ Found CID in mapping: ${realCID}`)
           }
 
           activeCIDs.push({

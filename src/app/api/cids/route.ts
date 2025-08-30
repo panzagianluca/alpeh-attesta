@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createPublicClient, http, decodeEventLog } from 'viem'
 import EvidenceRegistryABI from '@/abi/EvidenceRegistry.json'
+import { getCIDFromHash, initializeKnownCIDs } from '@/lib/cid-mapping'
 
 // Define Lisk Sepolia chain directly in API route to avoid import issues
 const liskSepoliaChain = {
@@ -28,27 +29,15 @@ const liskSepoliaChain = {
 // Contract address directly defined
 const ATTESTA_CORE_ADDRESS = '0x4fCD15b71119B2F1c18944F9D1e6Ac8D5eE0024a'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     console.log('API route called')
-    console.log('liskSepoliaChain.id:', liskSepoliaChain.id)
-    console.log('ATTESTA_CORE_ADDRESS:', ATTESTA_CORE_ADDRESS)
     
-    const contractAddress = ATTESTA_CORE_ADDRESS
-    console.log('contractAddress:', contractAddress)
-    
-    if (!contractAddress || contractAddress.includes('0x...')) {
-      console.log('Contract not deployed error')
-      return NextResponse.json({ 
-        success: false,
-        error: 'Contract not deployed',
-        debug: {
-          chainId: liskSepoliaChain.id,
-          contractAddress,
-          expectedAddress: ATTESTA_CORE_ADDRESS
-        }
-      }, { status: 400 })
-    }
+    // Initialize CID mappings
+    initializeKnownCIDs();
+
+    const contractAddress = process.env.ATTESTA_CORE_ADDRESS
+    const rpcUrl = process.env.LISK_RPC_URL || 'https://rpc.sepolia-api.lisk.com'
 
     // Create public client for Lisk Sepolia
     const publicClient = createPublicClient({
@@ -100,30 +89,58 @@ export async function GET(request: NextRequest) {
         
         const { cid: cidDigest, publisher, slo, slashing } = decoded.args as any
         
-        // Extract actual CID from transaction input data
-        let realCID = `Unknown_${cidDigest.slice(2, 10)}`
+        // Extract actual CID from mapping or transaction input data
+        let realCID = getCIDFromHash(cidDigest)
+        
+        if (!realCID) {
+          // Fallback to transaction data extraction
+          realCID = `Unknown_${cidDigest.slice(2, 10)}`
         
         try {
           // Try to decode the transaction input to get the original CID string
           if (tx.input && tx.input.length > 10) {
-            // Look for CID pattern in the transaction input
-            const inputStr = tx.input
-            // Simple heuristic: look for Qm patterns in hex
-            const matches = inputStr.match(/516d[0-9a-f]+/gi)
-            if (matches && matches.length > 0) {
-              // Convert hex to string
-              const hexCID = matches[0]
-              realCID = Buffer.from(hexCID, 'hex').toString('utf8')
-              
-              // Validate it looks like a real CID
-              if (!realCID.startsWith('Qm') || realCID.length < 40) {
-                throw new Error('Invalid CID format')
+            // Skip the function selector (first 4 bytes = 8 hex chars)
+            const inputData = tx.input.slice(10)
+            
+            // Decode the input data which contains the CID string
+            // The function signature is registerCID(bytes32,SLO,bool)
+            // So we need to find the CID string in the input data
+            
+            // Look for common CID patterns in different formats
+            const patterns = [
+              /Qm[a-zA-Z0-9]{44}/g,  // CIDv0
+              /b[a-z2-7]{58}/g,      // CIDv1 base32
+              /z[a-zA-Z0-9]+/g       // CIDv1 base58btc
+            ]
+            
+            // Convert hex to string and search for CID patterns
+            let searchString = ''
+            try {
+              // Try to decode as UTF-8
+              searchString = Buffer.from(inputData, 'hex').toString('utf8')
+            } catch {
+              // If UTF-8 fails, use the hex string directly
+              searchString = inputData
+            }
+            
+            for (const pattern of patterns) {
+              const matches = searchString.match(pattern)
+              if (matches && matches.length > 0) {
+                const candidateCID = matches[0]
+                // Validate the CID format
+                if (candidateCID.length >= 40 && candidateCID.length <= 100) {
+                  realCID = candidateCID
+                  console.log(`✅ Extracted CID: ${realCID} from tx ${log.transactionHash}`)
+                  break
+                }
               }
             }
           }
         } catch (cidError) {
           console.warn(`Could not extract CID from tx ${log.transactionHash}:`, cidError)
-          // Keep the fallback value
+        }
+        } else {
+          console.log(`✅ Found CID in mapping: ${realCID}`)
         }
         
         cids.push({
