@@ -2,7 +2,7 @@
 
 > **SLO-backed IPFS availability with economic guarantees for Web3 data integrity**
   
-**Built for Aleph Hackathon 2025 | Track: Public Good Infrastructure**
+**Built for Aleph Hackathon 2025 | Track: Public Good**
 
 Attesta revolutionizes IPFS reliability by introducing verifiable Service Level Objectives (SLOs) with economic guarantees. Publishers can register critical CIDs with uptime requirements, while validators earn rewards for monitoring or face slashing for breaches—creating the first economically-backed IPFS availability layer.
 
@@ -22,7 +22,62 @@ Attesta revolutionizes IPFS reliability by introducing verifiable Service Level 
 - **✅ Economic Incentives:** Publishers stake ETH, validators earn rewards or get slashed
 - **✅ Evidence Packs:** Cryptographically signed availability proofs stored on IPFS
 - **✅ Live Dashboard:** Real CID registration, status monitoring, and evidence viewing
-- **✅ Automated Detection:** Sub-60s breach detection with on-chain penalty execution**SLO-backed IPFS availability with economic guarantees**
+- **✅ Automated Detection:** Sub-60s breach detection with on-chain penalty execution
+
+## 💡 **The Idea vs What We Accomplished**
+
+### 🎯 **The Idea**
+We started with the vision of building an on-chain verification system for IPFS CIDs — making sure files remain online and available, and penalizing failures through slashing mechanisms. The plan included:
+
+- **Publishers staking ETH** when registering a CID
+- **Validators checking availability** every 60 seconds  
+- **Automatic slashing** when Service Level Objectives (SLOs) were breached
+- **A self-sustaining incentive model** where validators earned yield from staking, creating a decentralized verification marketplace
+
+This would transform IPFS monitoring from a passive dashboard into a **crypto-economic guarantee system**, where uptime is provable, enforceable, and monetizable.
+
+### ✅ **What We Accomplished**
+
+- **✅ Contracts Deployed:** EvidenceRegistry.sol live on Lisk Sepolia, enabling CID registration and anchoring signed Evidence Packs
+- **✅ Evidence Packs:** Working pipeline that probes multiple IPFS gateways, signs results, stores packs on IPFS, and anchors hashes on-chain
+- **✅ Dashboard:** Functional frontend with wallet connect, CID registration, live status (UP / DEGRADED / BREACH), and manual evidence inspection
+- **✅ Manual Probe Mode:** Because Vercel's free tier doesn't support minute-by-minute cron jobs, we added a Manual Probe button so users can still execute live checks
+- **✅ Breach Detection:** <60s breach proof-of-concept demonstrated by unpinning CIDs
+
+### 🎓 **Limitations / Learnings**
+
+- **Staking Parameter:** We missed adding ETH staking amounts into the initial contracts, so slashing is not yet active
+- **Cron Scheduling:** On free infra, we couldn't probe every 60s — validators currently need to be simulated manually
+- **Validator Network:** We realized a more robust model is to let independent validators perform the probing, rewarded with a share of the staking yield, and also incentivized by slashing events. This creates a decentralized validation economy where Attesta orchestrates roles, policies, and settlement
+
+### 💼 **Business Angle & Differentiation**
+
+**Not a File Saver:** Unlike Dropbox or Google Drive, Attesta does not store files. Instead, it provides cryptographic availability proofs that are portable across protocols and disputes.
+
+**Monetization:**
+- **Staking & Slashing:** Publishers bond collateral for SLAs. Slashing creates real financial risk for outages
+- **Validator Rewards:** Validators earn yield + performance bonuses
+- **Marketplace Fees:** Attesta can take a small fee from SLA contracts or validator payouts
+
+**Use Cases:**
+- Public datasets (gov/NGO transparency)
+- Protocol-level incentives (DA layers, grants)
+- Pinning providers differentiating their service with on-chain uptime guarantees
+- Enterprises needing dispute-ready proof of data availability
+
+⚡ **In short:** We didn't reach the full staking/slashing MVP yet, but we proved the core pipeline (CID → probe → signed evidence → on-chain anchor), built a working dashboard, and uncovered the business model of a decentralized validation network.
+
+## 🏆 **Hackathon Track & Bounties**
+
+### 🎯 **Primary Track: Public Good**
+*To build what benefits everyone: open-source tools, shared infrastructure, and resources that no one owns but everyone can use and improve*
+
+Attesta builds critical infrastructure for the decentralized web—ensuring IPFS data availability with economic guarantees. This creates a public utility that benefits the entire ecosystem by preventing content rot and ensuring access to important data.
+
+### 💰 **Sponsor Bounties:**
+- **🔗 Lisk:** Smart contract deployed on Lisk Sepolia with optimized gas usage for evidence anchoring and state management
+- **⚡ Vercel:** Serverless architecture with cron-based monitoring, edge computing for global probe execution  
+- **📦 Protocol Labs:** Deep IPFS integration with multi-gateway monitoring, evidence pack generation, and availability probing**SLO-backed IPFS availability with economic guarantees**
 
 Attesta ensures verifiable availability of critical IPFS content through Service Level Objectives (SLOs), restaking economics, and automated slashing for breaches.
 
@@ -143,18 +198,7 @@ attesta/
 
 *Built during January 30-February 2, 2025 | All code written during hackathon period*
 
-## 🏆 **Bounty Alignment**
-
-### 🎯 **Primary Track: Public Good Infrastructure**
-Attesta builds critical infrastructure for the decentralized web—ensuring IPFS data availability with economic guarantees. This creates a public utility that benefits the entire ecosystem by preventing content rot and ensuring access to important data.
-
-### 💰 **Sponsor Bounties:**
-- **🔗 Lisk Bounty:** Smart contract deployed on Lisk Sepolia with optimized gas usage for evidence anchoring and state management
-- **📦 Protocol Labs/IPFS:** Deep IPFS integration with multi-gateway monitoring, evidence pack generation, and availability probing
-- **⚡ Vercel:** Serverless architecture with cron-based monitoring, edge computing for global probe execution
-- **💾 Filecoin (if applicable):** Evidence pack storage ensuring long-term availability of monitoring proofs
-
-## 🎬 **3-Minute Demo Script**
+##  **3-Minute Demo Script**
 
 ### 🪝 **Hook (30s)**
 "When Web3 content disappears, entire dApps break. DAOs lose governance data. NFTs become worthless. Attesta guarantees your IPFS content stays alive—or automatically compensates you when it doesn't."
