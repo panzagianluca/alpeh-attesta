@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useAccount, useWriteContract, useWaitForTransactionReceipt, useChainId } from 'wagmi'
-import { parseEther, keccak256, toBytes } from 'viem'
+import { parseEther, toBytes } from 'viem'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -105,9 +105,6 @@ export function RegisterCIDPage() {
       const cidHash = saveCIDMapping(cid)
       console.log(`💾 Saved CID mapping: ${cidHash} -> ${cid}`)
       
-      // Calculate CID digest (keccak256 of the CID string)
-      const cidDigest = keccak256(toBytes(cid))
-      
       // Get contract address for current chain
       const contractAddress = CONTRACT_ADDRESSES[chainId as keyof typeof CONTRACT_ADDRESSES]?.attestaCore
       
@@ -120,7 +117,7 @@ export function RegisterCIDPage() {
         abi: EvidenceRegistryABI,
         functionName: 'registerCID',
         args: [
-          cidDigest,  // Pass the hash for now (current contract expects bytes32)
+          cid,  // Pass the CID string directly (not hash)
           {
             k: customSLO.k,
             n: customSLO.n,
